@@ -50,7 +50,6 @@ const App: React.FC = () => {
     }, 5000);
   }, []);
 
-  // Sync state to local storage
   useEffect(() => {
     localStorage.setItem('rtwh_posts', JSON.stringify(posts));
   }, [posts]);
@@ -59,7 +58,6 @@ const App: React.FC = () => {
     localStorage.setItem('rtwh_manifesto', JSON.stringify(manifesto));
   }, [manifesto]);
 
-  // Background check for scheduled posts
   useEffect(() => {
     const checkScheduledPosts = () => {
       setPosts(prevPosts => {
@@ -89,7 +87,6 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [addNotification]);
 
-  // Simulated live presence
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveDreamers(prev => Math.max(1, prev + (Math.random() > 0.5 ? 1 : -1)));
@@ -178,15 +175,15 @@ const App: React.FC = () => {
         <AmbientSoundscape />
         <DreamJournal />
 
-        <div className="fixed top-24 right-6 z-[100] space-y-3 pointer-events-none">
+        <div className="fixed top-24 right-4 md:right-6 z-[100] space-y-3 pointer-events-none max-w-[calc(100vw-2rem)]">
           {notifications.map(n => (
-            <div key={n.id} className="glass-card px-6 py-3 rounded-2xl border border-indigo-500/30 text-indigo-300 text-xs font-bold animate-in slide-in-from-right-4 shadow-2xl">
+            <div key={n.id} className="glass-card px-4 md:px-6 py-3 rounded-2xl border border-indigo-500/30 text-indigo-300 text-[10px] md:text-xs font-bold animate-in slide-in-from-right-4 shadow-2xl backdrop-blur-md">
               <span className="mr-2">✨</span> {n.text}
             </div>
           ))}
         </div>
 
-        <main className="pt-32 pb-20 px-6 max-w-7xl mx-auto">
+        <main className="pt-24 md:pt-32 pb-20 px-4 md:px-6 max-w-7xl mx-auto">
           {currentView === 'landing' && (
             <LandingView 
               manifesto={manifesto}
@@ -197,24 +194,24 @@ const App: React.FC = () => {
           )}
 
           {currentView === 'home' && (
-            <div className="space-y-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-              <header className="text-center space-y-10 max-w-4xl mx-auto">
+            <div className="space-y-12 md:space-y-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+              <header className="text-center space-y-6 md:space-y-10 max-w-4xl mx-auto">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-center gap-2 mb-4">
+                  <div className="flex items-center justify-center gap-2 mb-2 md:mb-4">
                     <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-                    <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-indigo-400">
+                    <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] text-indigo-400">
                       {activeDreamers} Dreamers currently online
                     </span>
                   </div>
-                  <h2 className="text-6xl md:text-8xl font-bold text-white tracking-tight leading-none">
+                  <h2 className="text-4xl sm:text-6xl md:text-8xl font-bold text-white tracking-tight leading-none">
                     The <span className="text-indigo-400">Midnight</span> Journal
                   </h2>
-                  <p className="text-slate-400 text-xl serif italic max-w-xl mx-auto">
+                  <p className="text-slate-400 text-lg md:text-xl serif italic max-w-xl mx-auto">
                     A collection of quiet insights for the restless mind.
                   </p>
                 </div>
                 
-                <div className="flex flex-col md:flex-row items-center justify-center gap-6 pt-4">
+                <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 pt-4">
                   <div className="relative w-full max-w-md group">
                     <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-400 text-slate-500">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -226,7 +223,7 @@ const App: React.FC = () => {
                       placeholder="Search for a whisper..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-full py-4 pl-12 pr-12 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all glass-card"
+                      className="w-full bg-white/5 border border-white/10 rounded-full py-3 md:py-4 pl-12 pr-12 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all glass-card"
                     />
                   </div>
 
@@ -235,7 +232,7 @@ const App: React.FC = () => {
                       <button
                         key={cat}
                         onClick={() => setSelectedCategory(cat)}
-                        className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${selectedCategory === cat ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-500 hover:text-white'}`}
+                        className={`px-4 md:px-6 py-2 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${selectedCategory === cat ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-500 hover:text-white'}`}
                       >
                         {cat}
                       </button>
@@ -243,14 +240,14 @@ const App: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-center gap-8 pt-4">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">Spirit Mood:</span>
-                  <div className="flex flex-wrap justify-center gap-6">
+                <div className="flex items-center justify-center gap-4 md:gap-8 pt-4">
+                  <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600 hidden sm:inline">Spirit Mood:</span>
+                  <div className="flex flex-wrap justify-center gap-4 md:gap-6">
                     {MOODS.map(mood => (
                       <button 
                         key={mood}
                         onClick={() => setSelectedMood(mood)}
-                        className={`text-[10px] font-bold uppercase tracking-[0.1em] transition-all hover:text-indigo-400 relative py-1 ${selectedMood === mood ? 'text-indigo-300' : 'text-slate-600'}`}
+                        className={`text-[9px] md:text-[10px] font-bold uppercase tracking-[0.1em] transition-all hover:text-indigo-400 relative py-1 ${selectedMood === mood ? 'text-indigo-300' : 'text-slate-600'}`}
                       >
                         {mood}
                         {selectedMood === mood && (
@@ -266,37 +263,37 @@ const App: React.FC = () => {
                 <section className="animate-in fade-in slide-in-from-bottom-8 relative z-10">
                   <div 
                     onClick={() => handlePostClick(featuredPost)}
-                    className="group cursor-pointer glass-card rounded-[3rem] overflow-hidden border border-white/5 relative flex flex-col lg:flex-row min-h-[500px] hover:border-indigo-500/30 transition-all duration-700"
+                    className="group cursor-pointer glass-card rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-white/5 relative flex flex-col lg:flex-row min-h-[400px] md:min-h-[500px] hover:border-indigo-500/30 transition-all duration-700"
                   >
-                    <div className="absolute top-8 left-8 z-20">
-                      <span className="bg-indigo-500 text-white text-[10px] font-bold uppercase tracking-[0.3em] px-4 py-2 rounded-full shadow-2xl">Featured Story</span>
+                    <div className="absolute top-4 left-4 md:top-8 md:left-8 z-20">
+                      <span className="bg-indigo-500 text-white text-[9px] md:text-[10px] font-bold uppercase tracking-[0.3em] px-3 md:px-4 py-1 md:py-2 rounded-full shadow-2xl">Featured Story</span>
                     </div>
-                    <div className="w-full lg:w-3/5 overflow-hidden h-[300px] lg:h-auto">
+                    <div className="w-full lg:w-3/5 overflow-hidden h-[250px] md:h-[350px] lg:h-auto">
                       <img 
                         src={featuredPost.imageUrl} 
                         alt={featuredPost.title} 
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 opacity-70 group-hover:opacity-100"
                       />
                     </div>
-                    <div className="w-full lg:w-2/5 p-10 md:p-16 flex flex-col justify-center space-y-6">
+                    <div className="w-full lg:w-2/5 p-6 md:p-10 lg:p-16 flex flex-col justify-center space-y-4 md:space-y-6">
                       <div className="flex items-center gap-4">
-                        <span className="text-indigo-400 text-xs font-bold uppercase tracking-widest">{featuredPost.category}</span>
+                        <span className="text-indigo-400 text-[10px] md:text-xs font-bold uppercase tracking-widest">{featuredPost.category}</span>
                         <span className="text-slate-500 text-xs">•</span>
-                        <span className="text-indigo-300/60 text-xs italic">{featuredPost.mood}</span>
+                        <span className="text-indigo-300/60 text-[10px] md:text-xs italic">{featuredPost.mood}</span>
                       </div>
-                      <h3 className="text-4xl md:text-5xl font-bold text-white leading-tight group-hover:text-indigo-300 transition-colors">
+                      <h3 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white leading-tight group-hover:text-indigo-300 transition-colors">
                         {featuredPost.title}
                       </h3>
-                      <p className="text-slate-400 text-lg serif italic leading-relaxed line-clamp-3">
+                      <p className="text-slate-400 text-sm md:text-lg serif italic leading-relaxed line-clamp-3">
                         "{featuredPost.excerpt}"
                       </p>
-                      <div className="flex items-center gap-4 pt-6 border-t border-white/5">
-                        <div className="w-12 h-12 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-indigo-300 font-bold">
+                      <div className="flex items-center gap-4 pt-4 md:pt-6 border-t border-white/5">
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-indigo-300 font-bold">
                           {featuredPost.author[0]}
                         </div>
                         <div>
-                          <p className="text-white font-medium">{featuredPost.author}</p>
-                          <p className="text-slate-500 text-xs uppercase tracking-tighter">{featuredPost.date}</p>
+                          <p className="text-white text-sm md:text-base font-medium">{featuredPost.author}</p>
+                          <p className="text-slate-500 text-[10px] uppercase tracking-tighter">{featuredPost.date}</p>
                         </div>
                       </div>
                     </div>
@@ -304,7 +301,7 @@ const App: React.FC = () => {
                 </section>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 relative z-10">
                 {(featuredPost && !searchQuery && selectedCategory === 'All' ? otherPosts : filteredPosts).map((post, idx) => (
                   <div key={post.id} className="animate-in fade-in slide-in-from-bottom-8" style={{ animationDelay: `${idx * 100}ms` }}>
                     <PostCard post={post} onClick={handlePostClick} />
@@ -313,19 +310,19 @@ const App: React.FC = () => {
               </div>
 
               {selectedCategory === 'All' && !searchQuery && (
-                <div className="py-10 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
+                <div className="py-6 md:py-10 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
                   <MidnightLibrary />
                 </div>
               )}
               
               {filteredPosts.length === 0 && (
-                <div className="text-center py-40 animate-in fade-in duration-700">
-                  <span className="text-4xl block mb-6 opacity-30">🌫️</span>
-                  <h4 className="text-white text-xl font-bold">The mist has swallowed everything.</h4>
-                  <p className="text-slate-500 italic serif mt-2">Try searching for a different spirit or category.</p>
+                <div className="text-center py-20 md:py-40 animate-in fade-in duration-700">
+                  <span className="text-3xl md:text-4xl block mb-4 md:mb-6 opacity-30">🌫️</span>
+                  <h4 className="text-white text-lg md:text-xl font-bold">The mist has swallowed everything.</h4>
+                  <p className="text-slate-500 text-sm md:text-base italic serif mt-2">Try searching for a different spirit or category.</p>
                   <button 
                     onClick={() => { setSelectedMood('All Spirits'); setSelectedCategory('All'); setSearchQuery(''); }}
-                    className="mt-8 text-indigo-400 text-xs font-bold uppercase tracking-widest border-b border-indigo-500/20 pb-1"
+                    className="mt-6 md:mt-8 text-indigo-400 text-[10px] md:text-xs font-bold uppercase tracking-widest border-b border-indigo-500/20 pb-1"
                   >
                     Reset The Hub
                   </button>
@@ -385,19 +382,19 @@ const App: React.FC = () => {
           )}
         </main>
 
-        <footer className="py-20 px-6 border-t border-white/5 text-center mt-20 relative overflow-hidden">
+        <footer className="py-12 md:py-20 px-4 md:px-6 border-t border-white/5 text-center mt-12 md:mt-20 relative overflow-hidden">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
-          <div className="flex flex-col items-center gap-8 max-w-lg mx-auto">
+          <div className="flex flex-col items-center gap-6 md:gap-8 max-w-lg mx-auto">
             <div className="flex items-center gap-2 grayscale opacity-40">
                <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center">
                  <span className="text-xs">📜</span>
                </div>
-               <h4 className="font-bold text-sm tracking-widest text-white">READY TOWRITE HUB</h4>
+               <h4 className="font-bold text-xs md:text-sm tracking-widest text-white">READY TOWRITE HUB</h4>
             </div>
-            <p className="text-slate-500 text-sm leading-relaxed serif italic">
+            <p className="text-slate-500 text-xs md:text-sm leading-relaxed serif italic">
               "We are such stuff as dreams are made on, and our little life is rounded with a sleep."
             </p>
-            <div className="flex gap-8 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+            <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-slate-400 text-[9px] md:text-[10px] font-bold uppercase tracking-widest">
               <button onClick={() => handleSetView('landing')} className="hover:text-indigo-400 transition-colors">Origins</button>
               <button onClick={() => { setSearchQuery(''); setSelectedCategory('All'); handleSetView('home'); }} className="hover:text-indigo-400 transition-colors">The Hub</button>
               <button onClick={() => handleSetView('author')} className="hover:text-indigo-400 transition-colors">The Scribe</button>
@@ -410,7 +407,7 @@ const App: React.FC = () => {
               </button>
             </div>
             <div className="pt-4">
-              <p className="text-slate-700 text-[9px] uppercase tracking-tighter">© 2024 readytowritehub — all rights reserved in the night.</p>
+              <p className="text-slate-700 text-[8px] md:text-[9px] uppercase tracking-tighter">© 2024 readytowritehub — all rights reserved in the night.</p>
             </div>
           </div>
         </footer>
