@@ -92,12 +92,12 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div className="lg:hidden absolute top-full left-0 right-0 glass-card border-t border-white/5 animate-in fade-in slide-in-from-top-4 duration-300 p-6 flex flex-col gap-6 items-center text-center">
-          <button onClick={() => handleNavClick('landing')} className={`text-lg font-medium ${currentView === 'landing' ? 'text-indigo-400' : 'text-slate-300'}`}>Welcome</button>
-          <button onClick={() => handleNavClick('home')} className={`text-lg font-medium ${currentView === 'home' ? 'text-indigo-400' : 'text-slate-300'}`}>The Feed</button>
-          <button onClick={scrollToLibrary} className="text-lg font-medium text-slate-300">Library</button>
-          <button onClick={() => handleNavClick('author')} className={`text-lg font-medium ${currentView === 'author' ? 'text-indigo-400' : 'text-slate-300'}`}>The Scribe</button>
-          <div className="pt-4 sm:hidden">
+        <div className="lg:hidden absolute top-full left-0 right-0 bg-slate-950/98 backdrop-blur-2xl border-t border-white/5 animate-in fade-in slide-in-from-top-4 duration-300 p-8 flex flex-col gap-8 items-center text-center shadow-2xl">
+          <button onClick={() => handleNavClick('landing')} className={`text-xl font-medium ${currentView === 'landing' ? 'text-indigo-400' : 'text-slate-300'}`}>Welcome</button>
+          <button onClick={() => handleNavClick('home')} className={`text-xl font-medium ${currentView === 'home' ? 'text-indigo-400' : 'text-slate-300'}`}>The Feed</button>
+          <button onClick={scrollToLibrary} className="text-xl font-medium text-slate-300">Library</button>
+          <button onClick={() => handleNavClick('author')} className={`text-xl font-medium ${currentView === 'author' ? 'text-indigo-400' : 'text-slate-300'}`}>The Scribe</button>
+          <div className="pt-6 sm:hidden w-full flex justify-center border-t border-white/5">
             <MoonWidget />
           </div>
         </div>
