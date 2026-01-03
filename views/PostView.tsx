@@ -223,16 +223,16 @@ const PostView: React.FC<PostViewProps> = ({ post, onBack, onUpdateStats, onNewC
             {avgRating} ({post.ratingCount || 0})
           </span>
         </div>
-        <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">{post.title}</h1>
+        <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight text-center md:text-left">{post.title}</h1>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-center md:justify-start gap-4">
             <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-300 font-bold text-lg">{post.author[0]}</div>
             <div>
               <p className="text-white font-medium text-sm md:text-base">{post.author}</p>
               <p className="text-slate-500 text-[10px] md:text-xs">{post.date}</p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-3">
              <button onClick={copyToClipboard} className={`flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 transition-all text-[10px] md:text-xs font-bold group ${copySuccess ? 'text-green-400 border-green-500/30' : 'text-slate-400 hover:text-white'}`}>
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
               {copySuccess ? 'Copied!' : 'Share'}
@@ -241,7 +241,7 @@ const PostView: React.FC<PostViewProps> = ({ post, onBack, onUpdateStats, onNewC
         </div>
       </header>
 
-      <div className="prose prose-invert prose-base md:prose-lg max-w-none text-slate-300 serif leading-relaxed space-y-6">
+      <div className="prose prose-invert prose-base md:prose-lg max-w-none text-slate-300 serif leading-relaxed space-y-6 text-center md:text-left">
         {post.content.split('\n').map((para, i) => para ? <p key={i}>{para}</p> : <br key={i} />)}
       </div>
 
@@ -249,7 +249,7 @@ const PostView: React.FC<PostViewProps> = ({ post, onBack, onUpdateStats, onNewC
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-3 text-center md:text-left">
             <h4 className="text-white font-bold text-base md:text-lg">How did this feel?</h4>
-            <div className="flex items-center gap-1 md:gap-2">
+            <div className="flex items-center justify-center md:justify-start gap-1 md:gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button key={star} onClick={() => handleRate(star)} className={`p-1 transition-all duration-300 transform hover:scale-125 ${userRating !== null && star <= userRating ? 'text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]' : 'text-slate-600 hover:text-slate-400'}`}>
                   <svg className="w-6 h-6 md:w-8 md:h-8 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
@@ -257,7 +257,7 @@ const PostView: React.FC<PostViewProps> = ({ post, onBack, onUpdateStats, onNewC
               ))}
             </div>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center justify-center md:justify-end gap-6">
             <button onClick={handleLike} className={`flex flex-col items-center gap-2 group transition-all ${userLiked === 'like' ? 'text-indigo-400' : 'text-slate-500'}`}>
               <div className={`p-3 md:p-4 rounded-full border border-white/5 transition-all group-hover:scale-110 ${userLiked === 'like' ? 'bg-indigo-500/10 border-indigo-500/40' : 'hover:bg-white/5'}`}>
                 <svg className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M2 20h2c.55 0 1-.45 1-1v-9c0-.55-.45-1-1-1H2v11zm19.83-7.12c.11-.25.17-.52.17-.8V11c0-1.1-.9-2-2-2h-5.5l.92-4.38c.02-.11.03-.23.03-.35c0-.42-.17-.8-.45-1.07L13.96 2L8.59 7.37C8.23 7.73 8 8.24 8 8.8V18c0 1.1.9 2 2 2h6.91c.73 0 1.38-.4 1.72-1.02l3.2-7.4c.1-.25.17-.52.17-.8l-.17.1z"/></svg>
@@ -270,23 +270,23 @@ const PostView: React.FC<PostViewProps> = ({ post, onBack, onUpdateStats, onNewC
 
       <section className="mt-12 space-y-8 md:space-y-12">
         <div className="space-y-4">
-          <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-3">
+          <h2 className="text-xl md:text-2xl font-bold text-white flex items-center justify-center md:justify-start gap-3">
             <span className="text-indigo-400 text-2xl md:text-3xl">“</span>
             Leave a whisper
           </h2>
           <form onSubmit={handleCommentSubmit} className="space-y-4 glass-card p-6 rounded-2xl md:rounded-3xl border border-white/5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-slate-500">Your Name</label>
+                <label className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Your Name</label>
                 <input type="text" value={newComment.author} onChange={e => setNewComment({ ...newComment, author: e.target.value })} placeholder="Anonymous" className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 text-white text-sm" />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-slate-500">Your Thought</label>
+              <label className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Your Thought</label>
               <textarea value={newComment.text} onChange={e => setNewComment({ ...newComment, text: e.target.value })} placeholder="Spill your soul gently..." rows={4} className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 text-white text-sm serif italic" />
             </div>
-            <div className="flex justify-end items-center">
-              <button type="submit" disabled={isSubmitting || !newComment.text.trim()} className="px-6 py-2 bg-indigo-500 text-white rounded-full text-xs font-bold hover:bg-indigo-600 transition-all disabled:opacity-50 active:scale-95 shadow-lg shadow-indigo-500/20">
+            <div className="flex justify-center md:justify-end items-center">
+              <button type="submit" disabled={isSubmitting || !newComment.text.trim()} className="w-full md:w-auto px-6 py-2 bg-indigo-500 text-white rounded-full text-xs font-bold hover:bg-indigo-600 transition-all disabled:opacity-50 active:scale-95 shadow-lg shadow-indigo-500/20">
                 {isSubmitting ? 'Relaying...' : 'Whisper Thought'}
               </button>
             </div>

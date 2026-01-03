@@ -98,7 +98,7 @@ const LandingView: React.FC<LandingViewProps> = ({ onEnter, recentPosts, onPostC
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {manifesto.map((item, i) => (
-            <div key={item.id} className="glass-card p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-white/5 hover:border-indigo-500/20 transition-all group animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${i * 150}ms` }}>
+            <div key={item.id} className="glass-card p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-white/5 hover:border-indigo-500/20 transition-all group animate-in fade-in slide-in-from-bottom-4 text-center md:text-left" style={{ animationDelay: `${i * 150}ms` }}>
               <span className="text-3xl md:text-4xl mb-4 md:mb-6 block group-hover:scale-110 transition-transform">{item.icon}</span>
               <h4 className="text-lg md:text-xl font-bold text-white mb-3 md:mb-4">{item.title}</h4>
               <p className="text-slate-400 text-xs md:text-sm leading-relaxed serif">{item.description}</p>

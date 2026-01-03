@@ -249,14 +249,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           {activeTab === 'manifesto' && (
             <div className="space-y-6">
-              <div className="bg-indigo-500/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[3rem] border border-white/5 mb-4">
+              <div className="bg-indigo-500/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[3rem] border border-white/5 mb-4 text-center md:text-left">
                  <h3 className="text-white font-bold text-lg md:text-xl mb-1 md:mb-2">The Midnight Manifesto</h3>
                  <p className="text-slate-500 text-[10px] md:text-sm">Define the soul of the hub. These values are displayed on the landing origins.</p>
               </div>
               <div className="grid grid-cols-1 gap-4 md:gap-6">
                 {manifesto.map((item, index) => (
                   <div key={item.id} className="glass-card p-6 md:p-8 rounded-2xl md:rounded-3xl border border-white/10 space-y-4">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4">
                        <input 
                         type="text" 
                         value={item.icon}
@@ -275,7 +275,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           newM[index].title = e.target.value;
                           onUpdateManifesto?.(newM);
                         }}
-                        className="w-full flex-1 bg-slate-900 border border-white/10 rounded-2xl px-4 md:px-6 py-3 md:py-4 text-white text-sm md:text-base font-bold focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        className="w-full flex-1 bg-slate-900 border border-white/10 rounded-2xl px-4 md:px-6 py-3 md:py-4 text-white text-sm md:text-base font-bold focus:outline-none focus:ring-1 focus:ring-indigo-500 text-center sm:text-left"
                        />
                     </div>
                     <textarea 
@@ -285,7 +285,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         newM[index].description = e.target.value;
                         onUpdateManifesto?.(newM);
                       }}
-                      className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 md:px-6 py-3 md:py-4 text-slate-400 text-xs md:text-sm serif italic focus:outline-none focus:ring-1 focus:ring-indigo-500 h-24"
+                      className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 md:px-6 py-3 md:py-4 text-slate-400 text-xs md:text-sm serif italic focus:outline-none focus:ring-1 focus:ring-indigo-500 h-24 text-center sm:text-left"
                     />
                   </div>
                 ))}
@@ -317,7 +317,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
         <div className="space-y-6 md:space-y-8">
           <div className="glass-card p-6 rounded-2xl md:rounded-3xl border border-white/5 bg-indigo-500/5">
-            <h4 className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-4 flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-indigo-400 animate-pulse" />Overview</h4>
+            <h4 className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-4 flex items-center justify-center md:justify-start gap-2"><span className="w-1 h-1 rounded-full bg-indigo-400 animate-pulse" />Overview</h4>
             <div className="space-y-4">
               <div className="flex justify-between items-center text-[11px]"><span className="text-slate-500">Live Time:</span><span className="text-white font-mono">{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span></div>
               <div className="flex justify-between items-center text-[11px]"><span className="text-slate-500">Thought Log:</span><span className="text-indigo-300 font-bold">{posts.length}</span></div>
