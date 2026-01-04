@@ -32,7 +32,7 @@ const AuthorView: React.FC = () => {
           <div className="absolute -inset-4 bg-indigo-500/10 rounded-[2rem] md:rounded-[3rem] blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />
           <div className="aspect-[3/4] rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-white/10 glass-card relative z-10">
             <img 
-              src="https://images.unsplash.com/photo-1544717297-fa95b3397118?auto=format&fit=crop&q=80&w=800" 
+              src="assets/author1.JPG" 
               alt="Mosunmola" 
               className="w-full h-full object-cover grayscale opacity-40 hover:opacity-60 hover:grayscale-0 transition-all duration-1000"
             />
@@ -48,8 +48,17 @@ const AuthorView: React.FC = () => {
             <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.4em] md:tracking-[0.5em] text-indigo-500/80">The Scribe & Advocate</span>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-tight">I am <span className="text-indigo-400">Mosunmola.</span></h2>
           </div>
+
           <p className="text-slate-400 text-base md:text-lg serif italic leading-relaxed">
-            "An Esq by day, a writer by night, and the brain box behind <span className="text-indigo-300">Spokenwith Mosunmola</span>. I navigate the structured world of law and the fluid world of words to find where silence truly speaks."
+            "An Esq by day, a writer by night, and the brain box behind 
+            <span className="text-indigo-300"> Spokenwith Mosunmola</span>. 
+            I navigate the structured world of law and the fluid world of words 
+            to find where silence truly speaks."
+          </p>
+
+          <p className="text-slate-400 text-lg serif italic leading-relaxed">
+            "An Esq by day, a writer by night, and the brain box behind <span className="text-indigo-300">Spokenwordwith Mosunmola</span>. I navigate the structured world of law and the fluid world of words to find where silence truly speaks."
+            (Fix logo import and update navbar branding)
           </p>
           <div className="pt-2 flex justify-center lg:justify-start gap-4">
              <div className="h-px w-8 md:w-12 bg-indigo-500/30 self-center" />

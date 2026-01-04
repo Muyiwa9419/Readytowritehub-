@@ -39,8 +39,13 @@ const LandingView: React.FC<LandingViewProps> = ({ onEnter, recentPosts, onPostC
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-indigo-600/10 blur-[80px] md:blur-[120px] rounded-full -z-10" />
         
         <div className="space-y-4">
+
           <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.4em] md:tracking-[0.5em] text-indigo-400/80 animate-pulse">
             Establishing Serenity
+
+          <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-indigo-400/80 animate-pulse">
+            Readytowritehub
+           (Fix logo import and update navbar branding)
           </span>
           <h2 className="text-5xl sm:text-7xl md:text-9xl font-bold text-white tracking-tighter leading-[0.9]">
             Ink. <br />
@@ -139,7 +144,7 @@ const LandingView: React.FC<LandingViewProps> = ({ onEnter, recentPosts, onPostC
           <div className="absolute -inset-4 bg-indigo-500/20 rounded-[2rem] md:rounded-[3rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
           <div className="aspect-[4/5] rounded-[2rem] md:rounded-[3rem] overflow-hidden glass-card relative border border-white/10">
             <img 
-              src="https://images.unsplash.com/photo-1544717297-fa95b3397118?auto=format&fit=crop&q=80&w=800" 
+              src="assets/author2.PNG" 
               alt="Mosunmola" 
               className="w-full h-full object-cover opacity-60 grayscale hover:grayscale-0 transition-all duration-1000"
             />
@@ -156,10 +161,14 @@ const LandingView: React.FC<LandingViewProps> = ({ onEnter, recentPosts, onPostC
           </div>
           <div className="space-y-4 md:space-y-6 text-slate-400 serif text-base md:text-lg leading-relaxed">
             <p>
-              I am Mosunmola, an Esq, a Writer, and the creative mind behind <span className="text-indigo-300 italic">Spokenwith Mosunmola</span>. I've spent my career balancing the rigid demands of law with the infinite freedom of storytelling.
+              I am Mosunmola, an Esq, a Writer, and the creative mind behind <span className="text-indigo-300 italic">Spokenwordwith Mosunmola</span>. I've spent my career balancing the rigid demands of law with the infinite freedom of storytelling.
             </p>
             <p>
+
               {siteName} is the convergence of those two worlds. It’s where I shed the legal robes to speak plainly and thoughtfully about the things that keep us awake, inspired, and human.
+
+            The Ready to Write Hub is a premier editorial and research platform dedicated to professional excellence. We specialize in the publication of insightful legal and non-legal articles, alongside providing expert research assistance for academic and professional projects. At The Ready To Write Hub, we bridge the gap between potential and reality, empowering our audience through thought-provoking motivational content, poetry, and rigorous legal analysis.
+             (Fix logo import and update navbar branding)
             </p>
           </div>
           <div className="flex justify-center md:justify-start gap-8 md:gap-10 pt-4 md:pt-6">

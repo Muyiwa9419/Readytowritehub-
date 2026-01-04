@@ -40,11 +40,16 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, logoUrl, siteName
         className="flex items-center gap-3 cursor-pointer group"
         onClick={() => handleNavClick('landing')}
       >
+
         <Logo className={`h-8 w-8 md:h-10 md:w-10 transition-transform duration-500 group-hover:rotate-12`} src={logoUrl} />
         <div>
           <h1 className={`text-lg md:text-xl font-bold tracking-tight leading-tight text-white uppercase`}>{siteName}</h1>
           <p className={`text-[9px] md:text-[10px] uppercase tracking-[0.2em] font-medium text-indigo-300/60`}>{tagline}</p>
         </div>
+
+        <Logo className="h-15 w-20 group-hover:rotate-12 transition-transform duration-500" />
+        
+      (Fix logo import and update navbar branding)
       </div>
 
       <div className="flex items-center gap-4 md:gap-8">
