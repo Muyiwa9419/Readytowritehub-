@@ -55,7 +55,7 @@ const PostView: React.FC<PostViewProps> = ({ post, onBack, onUpdateStats, onNewC
     const saved = localStorage.getItem(`rtwh_user_rating_${post.id}`);
     return saved ? parseInt(saved) : null;
   });
-  const [userLiked, setUserLiked] = useState<'like' | 'dislike' | null>(() => {
+  const [userVote, setUserVote] = useState<'like' | 'dislike' | null>(() => {
     return localStorage.getItem(`rtwh_user_vote_${post.id}`) as 'like' | 'dislike' | null;
   });
 
@@ -122,19 +122,28 @@ const PostView: React.FC<PostViewProps> = ({ post, onBack, onUpdateStats, onNewC
     setIsReading(false);
   };
 
-  const handleLike = () => {
+  const handleVote = (type: 'like' | 'dislike') => {
     let newLikes = post.likes || 0;
     let newDislikes = post.dislikes || 0;
-    if (userLiked === 'like') {
-      newLikes = Math.max(0, newLikes - 1);
-      setUserLiked(null);
+
+    if (userVote === type) {
+      // Toggle off
+      if (type === 'like') newLikes = Math.max(0, newLikes - 1);
+      else newDislikes = Math.max(0, newDislikes - 1);
+      setUserVote(null);
       localStorage.removeItem(`rtwh_user_vote_${post.id}`);
     } else {
-      if (userLiked === 'dislike') newDislikes = Math.max(0, newDislikes - 1);
-      newLikes += 1;
-      setUserLiked('like');
-      localStorage.setItem(`rtwh_user_vote_${post.id}`, 'like');
+      // Switch or set
+      if (userVote === 'like') newLikes = Math.max(0, newLikes - 1);
+      if (userVote === 'dislike') newDislikes = Math.max(0, newDislikes - 1);
+
+      if (type === 'like') newLikes += 1;
+      else newDislikes += 1;
+
+      setUserVote(type);
+      localStorage.setItem(`rtwh_user_vote_${post.id}`, type);
     }
+    
     onUpdateStats({ likes: newLikes, dislikes: newDislikes });
   };
 
@@ -180,7 +189,7 @@ const PostView: React.FC<PostViewProps> = ({ post, onBack, onUpdateStats, onNewC
   const avgRating = post.ratingCount && post.ratingSum ? (post.ratingSum / post.ratingCount).toFixed(1) : "0";
 
   return (
-    <article className="max-w-3xl mx-auto animate-in fade-in duration-700">
+    <article className="max-w-3xl mx-auto animate-in fade-in duration-700 px-4">
       <div className="fixed top-0 left-0 w-full h-1 z-[60] pointer-events-none">
         <div className="h-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)] transition-all duration-150 ease-out" style={{ width: `${readingProgress}%` }} />
       </div>
@@ -257,12 +266,25 @@ const PostView: React.FC<PostViewProps> = ({ post, onBack, onUpdateStats, onNewC
               ))}
             </div>
           </div>
-          <div className="flex items-center justify-center md:justify-end gap-6">
-            <button onClick={handleLike} className={`flex flex-col items-center gap-2 group transition-all ${userLiked === 'like' ? 'text-indigo-400' : 'text-slate-500'}`}>
-              <div className={`p-3 md:p-4 rounded-full border border-white/5 transition-all group-hover:scale-110 ${userLiked === 'like' ? 'bg-indigo-500/10 border-indigo-500/40' : 'hover:bg-white/5'}`}>
+          <div className="flex items-center justify-center md:justify-end gap-10">
+            <button 
+              onClick={() => handleVote('like')} 
+              className={`flex flex-col items-center gap-2 group transition-all ${userVote === 'like' ? 'text-indigo-400' : 'text-slate-500'}`}
+            >
+              <div className={`p-3 md:p-4 rounded-full border border-white/5 transition-all transform active:scale-90 group-hover:scale-110 ${userVote === 'like' ? 'bg-indigo-500/10 border-indigo-500/40' : 'hover:bg-white/5'}`}>
                 <svg className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M2 20h2c.55 0 1-.45 1-1v-9c0-.55-.45-1-1-1H2v11zm19.83-7.12c.11-.25.17-.52.17-.8V11c0-1.1-.9-2-2-2h-5.5l.92-4.38c.02-.11.03-.23.03-.35c0-.42-.17-.8-.45-1.07L13.96 2L8.59 7.37C8.23 7.73 8 8.24 8 8.8V18c0 1.1.9 2 2 2h6.91c.73 0 1.38-.4 1.72-1.02l3.2-7.4c.1-.25.17-.52.17-.8l-.17.1z"/></svg>
               </div>
-              <span className="text-[10px] md:text-xs font-bold">{post.likes || 0}</span>
+              <span className="text-[10px] md:text-xs font-bold tracking-widest">{post.likes || 0}</span>
+            </button>
+
+            <button 
+              onClick={() => handleVote('dislike')} 
+              className={`flex flex-col items-center gap-2 group transition-all ${userVote === 'dislike' ? 'text-red-400' : 'text-slate-500'}`}
+            >
+              <div className={`p-3 md:p-4 rounded-full border border-white/5 transition-all transform active:scale-90 group-hover:scale-110 ${userVote === 'dislike' ? 'bg-red-500/10 border-red-500/40' : 'hover:bg-white/5'}`}>
+                <svg className="w-5 h-5 md:w-6 md:h-6 rotate-180" fill="currentColor" viewBox="0 0 24 24"><path d="M2 20h2c.55 0 1-.45 1-1v-9c0-.55-.45-1-1-1H2v11zm19.83-7.12c.11-.25.17-.52.17-.8V11c0-1.1-.9-2-2-2h-5.5l.92-4.38c.02-.11.03-.23.03-.35c0-.42-.17-.8-.45-1.07L13.96 2L8.59 7.37C8.23 7.73 8 8.24 8 8.8V18c0 1.1.9 2 2 2h6.91c.73 0 1.38-.4 1.72-1.02l3.2-7.4c.1-.25.17-.52.17-.8l-.17.1z"/></svg>
+              </div>
+              <span className="text-[10px] md:text-xs font-bold tracking-widest">{post.dislikes || 0}</span>
             </button>
           </div>
         </div>

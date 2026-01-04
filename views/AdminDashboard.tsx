@@ -2,7 +2,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BlogPost, Comment, ManifestoItem } from '../types';
 import { generateBlogIdea, expandContentStream } from '../services/geminiService';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 interface AdminDashboardProps {
   posts: BlogPost[];
@@ -20,11 +19,15 @@ interface AdminDashboardProps {
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ 
   posts, onSave, onDelete, onEdit, onCreate, isEditing, editingPost, onCancel, manifesto = [], onUpdateManifesto 
 }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [activeTab, setActiveTab] = useState<'posts' | 'comments' | 'scheduled' | 'manifesto'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'comments' | 'scheduled' | 'manifesto' | 'security'>('posts');
   const [allComments, setAllComments] = useState<(Comment & { postTitle: string })[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
   
+  // Password state
+  const [passwordForm, setPasswordForm] = useState({ current: '', next: '', confirm: '' });
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+
   const [formData, setFormData] = useState<Partial<BlogPost>>(
     editingPost || {
       title: '',
@@ -66,6 +69,33 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
       }
     });
     setAllComments(comments.sort((a, b) => parseInt(b.id) - parseInt(a.id)));
+  };
+
+  const handlePasswordChange = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess(false);
+
+    const storedPassword = localStorage.getItem('rtwh_admin_password') || 'Godpassage';
+
+    if (passwordForm.current !== storedPassword) {
+      setPasswordError('Current access key is incorrect.');
+      return;
+    }
+
+    if (passwordForm.next !== passwordForm.confirm) {
+      setPasswordError('New keys do not match.');
+      return;
+    }
+
+    if (passwordForm.next.length < 4) {
+      setPasswordError('New key is too short.');
+      return;
+    }
+
+    localStorage.setItem('rtwh_admin_password', passwordForm.next);
+    setPasswordSuccess(true);
+    setPasswordForm({ current: '', next: '', confirm: '' });
   };
 
   const handleAiSuggest = async () => {
@@ -207,6 +237,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <button onClick={() => setActiveTab('scheduled')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'scheduled' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Future</button>
             <button onClick={() => setActiveTab('comments')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'comments' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Comments</button>
             <button onClick={() => setActiveTab('manifesto')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'manifesto' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Manifesto</button>
+            <button onClick={() => setActiveTab('security')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'security' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Security</button>
           </div>
         </div>
         <button onClick={onCreate} className="w-full md:w-auto bg-white text-slate-950 px-6 py-3 rounded-full font-bold hover:bg-indigo-400 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2 shadow-xl text-sm"><span>+</span> Capture Thought</button>
@@ -290,6 +321,64 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {activeTab === 'security' && (
+            <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4">
+              <div className="bg-indigo-500/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[3rem] border border-white/5 mb-4 text-center md:text-left">
+                 <h3 className="text-white font-bold text-lg md:text-xl mb-1 md:mb-2">Scribe Security</h3>
+                 <p className="text-slate-500 text-[10px] md:text-sm">Protect your portal. Change your access key regularly.</p>
+              </div>
+              <form onSubmit={handlePasswordChange} className="glass-card p-6 md:p-8 rounded-2xl md:rounded-3xl border border-white/10 space-y-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Current Access Key</label>
+                    <input 
+                      required
+                      type="password" 
+                      value={passwordForm.current}
+                      onChange={e => setPasswordForm({...passwordForm, current: e.target.value})}
+                      className="w-full bg-slate-900 border border-white/10 rounded-2xl px-6 py-3 text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">New Access Key</label>
+                    <input 
+                      required
+                      type="password" 
+                      value={passwordForm.next}
+                      onChange={e => setPasswordForm({...passwordForm, next: e.target.value})}
+                      className="w-full bg-slate-900 border border-white/10 rounded-2xl px-6 py-3 text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Confirm New Key</label>
+                    <input 
+                      required
+                      type="password" 
+                      value={passwordForm.confirm}
+                      onChange={e => setPasswordForm({...passwordForm, confirm: e.target.value})}
+                      className="w-full bg-slate-900 border border-white/10 rounded-2xl px-6 py-3 text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                {passwordError && (
+                  <p className="text-xs text-red-400 font-bold bg-red-400/10 px-4 py-2 rounded-lg border border-red-400/20">{passwordError}</p>
+                )}
+
+                {passwordSuccess && (
+                  <p className="text-xs text-green-400 font-bold bg-green-400/10 px-4 py-2 rounded-lg border border-green-400/20">The keys have been updated. Your portal is secure.</p>
+                )}
+
+                <button 
+                  type="submit"
+                  className="w-full bg-white text-slate-950 py-3 rounded-2xl font-bold hover:bg-indigo-400 hover:text-white transition-all active:scale-[0.98]"
+                >
+                  Update Access Key
+                </button>
+              </form>
             </div>
           )}
 

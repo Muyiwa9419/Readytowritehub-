@@ -16,9 +16,12 @@ const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, onCancel }) => {
     setLoading(true);
     setError(false);
 
+    // Get the dynamic password from localStorage, default to 'Godpassage'
+    const storedPassword = localStorage.getItem('rtwh_admin_password') || 'Godpassage';
+
     // Simulate a gentle authentication check
     setTimeout(() => {
-      if (password === 'Godpassage') {
+      if (password === storedPassword) {
         onLoginSuccess();
       } else {
         setError(true);
@@ -29,7 +32,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, onCancel }) => {
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center animate-in fade-in zoom-in-95 duration-700">
-      <div className="max-w-md w-full glass-card p-12 rounded-[3rem] border border-white/10 text-center space-y-8 relative overflow-hidden">
+      <div className="max-w-md w-full glass-card p-8 md:p-12 rounded-[3rem] border border-white/10 text-center space-y-8 relative overflow-hidden mx-4">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
         
         <div className="space-y-4">
