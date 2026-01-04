@@ -22,6 +22,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [activeTab, setActiveTab] = useState<'posts' | 'comments' | 'scheduled' | 'manifesto' | 'security'>('posts');
   const [allComments, setAllComments] = useState<(Comment & { postTitle: string })[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Password state
   const [passwordForm, setPasswordForm] = useState({ current: '', next: '', confirm: '' });
@@ -119,16 +120,33 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     finally { setAiLoading(false); }
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, imageUrl: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const now = new Date();
     const scheduledDateTime = formData.scheduledDate ? new Date(formData.scheduledDate) : now;
     const isFuture = scheduledDateTime > now;
+    
     let finalStatus: 'published' | 'draft' | 'scheduled' = formData.status || 'draft';
+    // Logic: If user picks published but time is in future, it's scheduled.
     if (finalStatus === 'published' && isFuture) finalStatus = 'scheduled';
+    // Logic: If user specifically picks scheduled, ensure it is in future or default to now.
+    if (finalStatus === 'scheduled' && !isFuture) finalStatus = 'published';
+
     const datePart = scheduledDateTime.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
     const timePart = scheduledDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
     const fullTimestamp = `${datePart} • ${timePart}`;
+
     const newPost: BlogPost = {
       id: formData.id || Date.now().toString(),
       title: formData.title || 'Untitled',
@@ -169,7 +187,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Category</label>
-                <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-white text-sm"><option>Reflections</option><option>Lifestyle</option><option>Legal</option><option>Craft</option><option>Dreams</option></select>
+                <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-white text-sm">
+                  <option>Reflections</option>
+                  <option>Lifestyle</option>
+                  <option>Legal</option>
+                  <option>Faith</option>
+                  <option>Dreams</option>
+                </select>
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Spirit Mood</label>
@@ -178,14 +202,42 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Arrival Time</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Arrival Time (Publish Schedule)</label>
                 <input type="datetime-local" value={formData.scheduledDate} onChange={e => setFormData({...formData, scheduledDate: e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-white text-sm scheme-dark" />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Banner Image</label>
-                <input type="text" value={formData.imageUrl} onChange={e => setFormData({...formData, imageUrl: e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-white text-sm" placeholder="Unsplash URL..." />
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Banner Image URL or Upload</label>
+                <div className="flex gap-2">
+                  <input type="text" value={formData.imageUrl} onChange={e => setFormData({...formData, imageUrl: e.target.value})} className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-white text-sm" placeholder="Unsplash URL..." />
+                  <button 
+                    type="button" 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-4 bg-white/10 border border-white/10 rounded-xl text-indigo-400 hover:bg-white/20 transition-all text-sm font-bold"
+                  >
+                    Upload
+                  </button>
+                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                </div>
               </div>
             </div>
+
+            {formData.imageUrl && (
+              <div className="w-full h-32 rounded-xl overflow-hidden border border-white/10">
+                <img src={formData.imageUrl} className="w-full h-full object-cover opacity-50" alt="Banner Preview" />
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Status</label>
+                <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value as any})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-white text-sm">
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                  <option value="scheduled">Scheduled</option>
+                </select>
+              </div>
+            </div>
+
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Excerpt</label>
               <textarea value={formData.excerpt} onChange={e => setFormData({...formData, excerpt: e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-white h-20 text-sm" />
@@ -225,7 +277,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     );
   }
 
-  const publishedPosts = posts.filter(p => p.status === 'published' || p.status === 'draft' || p.status === 'scheduled');
+  const filteredDisplayPosts = posts.filter(p => activeTab === 'posts' ? (p.status !== 'scheduled') : (p.status === 'scheduled'));
 
   return (
     <div className="space-y-8 md:space-y-12 animate-in fade-in slide-in-from-right-4 duration-700">
@@ -234,7 +286,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Workspace</h2>
           <div className="flex gap-4 md:gap-6 mt-4 overflow-x-auto no-scrollbar pb-2">
             <button onClick={() => setActiveTab('posts')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'posts' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Feed</button>
-            <button onClick={() => setActiveTab('scheduled')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'scheduled' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Future</button>
+            <button onClick={() => setActiveTab('scheduled')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'scheduled' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Future ({posts.filter(p => p.status === 'scheduled').length})</button>
             <button onClick={() => setActiveTab('comments')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'comments' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Comments</button>
             <button onClick={() => setActiveTab('manifesto')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'manifesto' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Manifesto</button>
             <button onClick={() => setActiveTab('security')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'security' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Security</button>
@@ -253,7 +305,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <tr><th className="px-6 py-4">Title</th><th className="px-6 py-4">Status</th><th className="px-6 py-4 text-right">Actions</th></tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {publishedPosts.filter(p => activeTab === 'posts' ? (p.status !== 'scheduled') : (p.status === 'scheduled')).map(post => (
+                    {filteredDisplayPosts.map(post => (
                       <tr key={post.id} className="hover:bg-white/5 transition-colors group">
                         <td className="px-6 py-4">
                           <p className="text-white text-sm font-medium group-hover:text-indigo-300 transition-colors line-clamp-1">{post.title}</p>

@@ -30,13 +30,13 @@ export const INITIAL_POSTS: BlogPost[] = [
   },
   {
     id: '3',
-    title: 'Morning Dew and First Drafts',
-    excerpt: 'The transition from the sleepy state to the waking world is a bridge for creativity.',
-    content: 'There is a liminal space between dreaming and waking that remains untapped by most writers. This hypnopompic state is where the most abstract ideas reside...',
+    title: 'Finding Grace in the Stillness',
+    excerpt: 'How quiet moments of prayer and reflection strengthen the soul.',
+    content: 'There is a profound spiritual connection that happens in the quiet. When we remove the distractions of the day, we open our hearts to a deeper understanding of our faith...',
     author: 'Mosunmola, Esq',
     date: 'Dec 05, 2023 • 05:30 AM',
     readingTime: '8 min',
-    category: 'Craft',
+    category: 'Faith',
     mood: 'Restless',
     imageUrl: 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&q=80&w=800',
     status: 'published'

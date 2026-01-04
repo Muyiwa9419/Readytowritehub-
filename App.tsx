@@ -14,7 +14,7 @@ import DreamJournal from './components/DreamJournal.tsx';
 import StarBackground from './components/StarBackground.tsx';
 import MidnightLibrary from './components/MidnightLibrary.tsx';
 
-const CATEGORIES = ['All', 'Reflections', 'Lifestyle', 'Legal', 'Craft', 'Dreams'];
+const CATEGORIES = ['All', 'Reflections', 'Lifestyle', 'Legal', 'Faith', 'Dreams'];
 const MOODS = ['All Spirits', 'Quiet', 'Restless', 'Inspired', 'Melancholy'];
 
 const DEFAULT_MANIFESTO: ManifestoItem[] = [
@@ -24,6 +24,7 @@ const DEFAULT_MANIFESTO: ManifestoItem[] = [
 ];
 
 const App: React.FC = () => {
+  const [isDayMode, setIsDayMode] = useState(() => localStorage.getItem('rtwh_theme') === 'day');
   const [posts, setPosts] = useState<BlogPost[]>(() => {
     const saved = localStorage.getItem('rtwh_posts');
     return saved ? JSON.parse(saved) : (INITIAL_POSTS as BlogPost[]);
@@ -41,6 +42,26 @@ const App: React.FC = () => {
   const [selectedMood, setSelectedMood] = useState('All Spirits');
   const [activeDreamers, setActiveDreamers] = useState(12);
   const [notifications, setNotifications] = useState<{id: string, text: string}[]>([]);
+
+  const toggleTheme = () => {
+    setIsDayMode(prev => {
+      const newVal = !prev;
+      localStorage.setItem('rtwh_theme', newVal ? 'day' : 'night');
+      return newVal;
+    });
+  };
+
+  useEffect(() => {
+    if (isDayMode) {
+      document.body.classList.add('day-mode');
+      document.body.classList.remove('bg-slate-950');
+      document.body.classList.add('bg-[#fdfcfb]');
+    } else {
+      document.body.classList.remove('day-mode');
+      document.body.classList.add('bg-slate-950');
+      document.body.classList.remove('bg-[#fdfcfb]');
+    }
+  }, [isDayMode]);
 
   const addNotification = useCallback((text: string) => {
     const id = Date.now().toString();
@@ -166,18 +187,18 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen sleepy-gradient selection:bg-indigo-500/30 overflow-x-hidden relative">
-      <StarBackground />
+    <div className={`min-h-screen sleepy-gradient selection:bg-indigo-500/30 overflow-x-hidden relative ${isDayMode ? 'text-slate-900' : 'text-slate-200'}`}>
+      {!isDayMode && <StarBackground />}
       
       <div className="relative z-10">
-        <Navbar currentView={currentView} setView={handleSetView} />
+        <Navbar currentView={currentView} setView={handleSetView} onToggleTheme={toggleTheme} isDayMode={isDayMode} />
         
         <AmbientSoundscape />
         <DreamJournal />
 
         <div className="fixed top-24 right-4 md:right-6 z-[100] space-y-3 pointer-events-none max-w-[calc(100vw-2rem)]">
           {notifications.map(n => (
-            <div key={n.id} className="glass-card px-4 md:px-6 py-3 rounded-2xl border border-indigo-500/30 text-indigo-300 text-[10px] md:text-xs font-bold animate-in slide-in-from-right-4 shadow-2xl backdrop-blur-md">
+            <div key={n.id} className="glass-card px-4 md:px-6 py-3 rounded-2xl border border-indigo-500/30 text-indigo-400 text-[10px] md:text-xs font-bold animate-in slide-in-from-right-4 shadow-2xl backdrop-blur-md">
               <span className="mr-2">✨</span> {n.text}
             </div>
           ))}
@@ -199,14 +220,14 @@ const App: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-center gap-2 mb-2 md:mb-4">
                     <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-                    <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] text-indigo-400">
-                      {activeDreamers} Dreamers currently online
+                    <span className={`text-[9px] md:text-[10px] font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] ${isDayMode ? 'text-indigo-600' : 'text-indigo-400'}`}>
+                      {activeDreamers} {isDayMode ? 'Souls' : 'Dreamers'} currently online
                     </span>
                   </div>
-                  <h2 className="text-4xl sm:text-6xl md:text-8xl font-bold text-white tracking-tight leading-none">
-                    The <span className="text-indigo-400">Midnight</span> Journal
+                  <h2 className="text-4xl sm:text-6xl md:text-8xl font-bold tracking-tight leading-none">
+                    The <span className="text-indigo-500">{isDayMode ? 'Morning' : 'Midnight'}</span> Journal
                   </h2>
-                  <p className="text-slate-400 text-lg md:text-xl serif italic max-w-xl mx-auto">
+                  <p className={`${isDayMode ? 'text-slate-600' : 'text-slate-400'} text-lg md:text-xl serif italic max-w-xl mx-auto`}>
                     A collection of quiet insights for the restless mind.
                   </p>
                 </div>
@@ -223,7 +244,7 @@ const App: React.FC = () => {
                       placeholder="Search for a whisper..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-full py-3 md:py-4 pl-12 pr-12 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all glass-card"
+                      className={`w-full border rounded-full py-3 md:py-4 pl-12 pr-12 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all glass-card ${isDayMode ? 'text-slate-900 border-black/5' : 'text-white border-white/10'}`}
                     />
                   </div>
 
@@ -232,7 +253,7 @@ const App: React.FC = () => {
                       <button
                         key={cat}
                         onClick={() => setSelectedCategory(cat)}
-                        className={`px-4 md:px-6 py-2 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${selectedCategory === cat ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-500 hover:text-white'}`}
+                        className={`px-4 md:px-6 py-2 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${selectedCategory === cat ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-500 hover:text-indigo-400'}`}
                       >
                         {cat}
                       </button>
@@ -241,13 +262,13 @@ const App: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-center gap-4 md:gap-8 pt-4">
-                  <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600 hidden sm:inline">Spirit Mood:</span>
+                  <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 hidden sm:inline">Spirit Mood:</span>
                   <div className="flex flex-wrap justify-center gap-4 md:gap-6">
                     {MOODS.map(mood => (
                       <button 
                         key={mood}
                         onClick={() => setSelectedMood(mood)}
-                        className={`text-[9px] md:text-[10px] font-bold uppercase tracking-[0.1em] transition-all hover:text-indigo-400 relative py-1 ${selectedMood === mood ? 'text-indigo-300' : 'text-slate-600'}`}
+                        className={`text-[9px] md:text-[10px] font-bold uppercase tracking-[0.1em] transition-all hover:text-indigo-400 relative py-1 ${selectedMood === mood ? 'text-indigo-500' : 'text-slate-500'}`}
                       >
                         {mood}
                         {selectedMood === mood && (
@@ -277,22 +298,22 @@ const App: React.FC = () => {
                     </div>
                     <div className="w-full lg:w-2/5 p-6 md:p-10 lg:p-16 flex flex-col justify-center space-y-4 md:space-y-6">
                       <div className="flex items-center gap-4">
-                        <span className="text-indigo-400 text-[10px] md:text-xs font-bold uppercase tracking-widest">{featuredPost.category}</span>
-                        <span className="text-slate-500 text-xs">•</span>
-                        <span className="text-indigo-300/60 text-[10px] md:text-xs italic">{featuredPost.mood}</span>
+                        <span className="text-indigo-500 text-[10px] md:text-xs font-bold uppercase tracking-widest">{featuredPost.category}</span>
+                        <span className="text-slate-400 text-xs">•</span>
+                        <span className="text-indigo-400/60 text-[10px] md:text-xs italic">{featuredPost.mood}</span>
                       </div>
-                      <h3 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white leading-tight group-hover:text-indigo-300 transition-colors">
+                      <h3 className={`text-2xl md:text-4xl lg:text-5xl font-bold leading-tight group-hover:text-indigo-500 transition-colors ${isDayMode ? 'text-slate-900' : 'text-white'}`}>
                         {featuredPost.title}
                       </h3>
-                      <p className="text-slate-400 text-sm md:text-lg serif italic leading-relaxed line-clamp-3">
+                      <p className={`text-sm md:text-lg serif italic leading-relaxed line-clamp-3 ${isDayMode ? 'text-slate-600' : 'text-slate-400'}`}>
                         "{featuredPost.excerpt}"
                       </p>
                       <div className="flex items-center gap-4 pt-4 md:pt-6 border-t border-white/5">
-                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-indigo-300 font-bold">
+                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full border flex items-center justify-center font-bold ${isDayMode ? 'bg-slate-200 border-slate-300 text-indigo-600' : 'bg-slate-800 border-white/10 text-indigo-300'}`}>
                           {featuredPost.author[0]}
                         </div>
                         <div>
-                          <p className="text-white text-sm md:text-base font-medium">{featuredPost.author}</p>
+                          <p className={`text-sm md:text-base font-medium ${isDayMode ? 'text-slate-900' : 'text-white'}`}>{featuredPost.author}</p>
                           <p className="text-slate-500 text-[10px] uppercase tracking-tighter">{featuredPost.date}</p>
                         </div>
                       </div>
@@ -318,11 +339,11 @@ const App: React.FC = () => {
               {filteredPosts.length === 0 && (
                 <div className="text-center py-20 md:py-40 animate-in fade-in duration-700">
                   <span className="text-3xl md:text-4xl block mb-4 md:mb-6 opacity-30">🌫️</span>
-                  <h4 className="text-white text-lg md:text-xl font-bold">The mist has swallowed everything.</h4>
+                  <h4 className={`text-lg md:text-xl font-bold ${isDayMode ? 'text-slate-800' : 'text-white'}`}>The mist has swallowed everything.</h4>
                   <p className="text-slate-500 text-sm md:text-base italic serif mt-2">Try searching for a different spirit or category.</p>
                   <button 
                     onClick={() => { setSelectedMood('All Spirits'); setSelectedCategory('All'); setSearchQuery(''); }}
-                    className="mt-6 md:mt-8 text-indigo-400 text-[10px] md:text-xs font-bold uppercase tracking-widest border-b border-indigo-500/20 pb-1"
+                    className="mt-6 md:mt-8 text-indigo-500 text-[10px] md:text-xs font-bold uppercase tracking-widest border-b border-indigo-500/20 pb-1"
                   >
                     Reset The Hub
                   </button>
@@ -382,32 +403,32 @@ const App: React.FC = () => {
           )}
         </main>
 
-        <footer className="py-12 md:py-20 px-4 md:px-6 border-t border-white/5 text-center mt-12 md:mt-20 relative overflow-hidden">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+        <footer className={`py-12 md:py-20 px-4 md:px-6 border-t ${isDayMode ? 'border-black/5' : 'border-white/5'} text-center mt-12 md:mt-20 relative overflow-hidden`}>
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-indigo-500/10 to-transparent" />
           <div className="flex flex-col items-center gap-6 md:gap-8 max-w-lg mx-auto">
             <div className="flex items-center gap-2 grayscale opacity-40">
-               <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center">
-                 <span className="text-xs">📜</span>
+               <div className="w-8 h-8 rounded-full border border-slate-500/20 flex items-center justify-center">
+                 <span className="text-xs">{isDayMode ? '☀️' : '📜'}</span>
                </div>
-               <h4 className="font-bold text-xs md:text-sm tracking-widest text-white">READY TOWRITE HUB</h4>
+               <h4 className={`font-bold text-xs md:text-sm tracking-widest ${isDayMode ? 'text-slate-900' : 'text-white'}`}>READY TOWRITE HUB</h4>
             </div>
             <p className="text-slate-500 text-xs md:text-sm leading-relaxed serif italic">
               "We are such stuff as dreams are made on, and our little life is rounded with a sleep."
             </p>
-            <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-slate-400 text-[9px] md:text-[10px] font-bold uppercase tracking-widest">
-              <button onClick={() => handleSetView('landing')} className="hover:text-indigo-400 transition-colors">Origins</button>
-              <button onClick={() => { setSearchQuery(''); setSelectedCategory('All'); handleSetView('home'); }} className="hover:text-indigo-400 transition-colors">The Hub</button>
-              <button onClick={() => handleSetView('author')} className="hover:text-indigo-400 transition-colors">The Scribe</button>
+            <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest">
+              <button onClick={() => handleSetView('landing')} className="hover:text-indigo-500 transition-colors">Origins</button>
+              <button onClick={() => { setSearchQuery(''); setSelectedCategory('All'); handleSetView('home'); }} className="hover:text-indigo-500 transition-colors">The Hub</button>
+              <button onClick={() => handleSetView('author')} className="hover:text-indigo-500 transition-colors">The Scribe</button>
               <button 
                 onClick={() => handleSetView('login')}
-                className="hover:text-indigo-300 transition-colors opacity-60 hover:opacity-100 flex items-center gap-2"
+                className="hover:text-indigo-500 transition-colors flex items-center gap-2"
               >
                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/></svg>
                 Scribe Portal
               </button>
             </div>
             <div className="pt-4">
-              <p className="text-slate-700 text-[8px] md:text-[9px] uppercase tracking-tighter">© 2024 readytowritehub — all rights reserved in the night.</p>
+              <p className="text-slate-400 text-[8px] md:text-[9px] uppercase tracking-tighter">© 2024 readytowritehub — all rights reserved in the silence.</p>
             </div>
           </div>
         </footer>
