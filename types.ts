@@ -37,6 +37,7 @@ export interface SiteSettings {
   siteName: string;
   tagline: string;
   accentColor: string;
+  logoUrl: string;
 }
 
 export type View = 'landing' | 'home' | 'post' | 'admin' | 'edit' | 'author' | 'login';

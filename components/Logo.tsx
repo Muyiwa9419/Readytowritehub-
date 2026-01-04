@@ -1,14 +1,27 @@
 
 import React from 'react';
 
-const Logo: React.FC<{ className?: string }> = ({ className = "h-8 w-8" }) => (
-  <svg viewBox="0 0 100 100" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M20 80 Q 50 20 80 80" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-    <circle cx="50" cy="40" r="10" fill="currentColor" fillOpacity="0.2" />
-    <path d="M40 60 L60 60" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    <path d="M45 70 L55 70" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    <circle cx="80" cy="20" r="4" fill="#fbbf24" />
-  </svg>
-);
+interface LogoProps {
+  className?: string;
+  src?: string;
+}
+
+const Logo: React.FC<LogoProps> = ({ className = "h-8 w-8", src }) => {
+  // Fallback to a default thematic image if no src is provided
+  const defaultLogo = "https://images.unsplash.com/photo-1544077960-604201fe74bc?auto=format&fit=crop&q=80&w=200";
+  
+  return (
+    <div className={`${className} rounded-full overflow-hidden border border-white/10 flex items-center justify-center bg-slate-900 shadow-lg`}>
+      <img 
+        src={src || defaultLogo} 
+        alt="Hub Logo" 
+        className="w-full h-full object-cover"
+        onError={(e) => {
+          (e.target as HTMLImageElement).src = defaultLogo;
+        }}
+      />
+    </div>
+  );
+};
 
 export default Logo;

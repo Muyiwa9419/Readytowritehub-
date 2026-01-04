@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { BlogPost, Comment, ManifestoItem } from '../types';
+import { BlogPost, Comment, ManifestoItem, SiteSettings } from '../types';
 import { generateBlogIdea, expandContentStream } from '../services/geminiService';
 
 interface AdminDashboardProps {
@@ -14,15 +14,18 @@ interface AdminDashboardProps {
   onCancel?: () => void;
   manifesto?: ManifestoItem[];
   onUpdateManifesto?: (manifesto: ManifestoItem[]) => void;
+  siteSettings?: SiteSettings;
+  onUpdateSettings?: (settings: SiteSettings) => void;
 }
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ 
-  posts, onSave, onDelete, onEdit, onCreate, isEditing, editingPost, onCancel, manifesto = [], onUpdateManifesto 
+  posts, onSave, onDelete, onEdit, onCreate, isEditing, editingPost, onCancel, manifesto = [], onUpdateManifesto, siteSettings, onUpdateSettings 
 }) => {
-  const [activeTab, setActiveTab] = useState<'posts' | 'comments' | 'scheduled' | 'manifesto' | 'security'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'comments' | 'scheduled' | 'manifesto' | 'branding' | 'security'>('posts');
   const [allComments, setAllComments] = useState<(Comment & { postTitle: string })[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
   
   // Password state
   const [passwordForm, setPasswordForm] = useState({ current: '', next: '', confirm: '' });
@@ -120,12 +123,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     finally { setAiLoading(false); }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, target: 'post' | 'logo') => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, imageUrl: reader.result as string }));
+        const result = reader.result as string;
+        if (target === 'post') {
+          setFormData(prev => ({ ...prev, imageUrl: result }));
+        } else if (target === 'logo' && siteSettings && onUpdateSettings) {
+          onUpdateSettings({ ...siteSettings, logoUrl: result });
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -138,9 +146,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     const isFuture = scheduledDateTime > now;
     
     let finalStatus: 'published' | 'draft' | 'scheduled' = formData.status || 'draft';
-    // Logic: If user picks published but time is in future, it's scheduled.
     if (finalStatus === 'published' && isFuture) finalStatus = 'scheduled';
-    // Logic: If user specifically picks scheduled, ensure it is in future or default to now.
     if (finalStatus === 'scheduled' && !isFuture) finalStatus = 'published';
 
     const datePart = scheduledDateTime.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
@@ -216,7 +222,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   >
                     Upload
                   </button>
-                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'post')} />
                 </div>
               </div>
             </div>
@@ -289,6 +295,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <button onClick={() => setActiveTab('scheduled')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'scheduled' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Future ({posts.filter(p => p.status === 'scheduled').length})</button>
             <button onClick={() => setActiveTab('comments')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'comments' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Comments</button>
             <button onClick={() => setActiveTab('manifesto')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'manifesto' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Manifesto</button>
+            <button onClick={() => setActiveTab('branding')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'branding' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Branding</button>
             <button onClick={() => setActiveTab('security')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'security' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Security</button>
           </div>
         </div>
@@ -326,6 +333,64 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'branding' && siteSettings && onUpdateSettings && (
+            <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4">
+              <div className="bg-indigo-500/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[3rem] border border-white/5 mb-4 text-center md:text-left">
+                 <h3 className="text-white font-bold text-lg md:text-xl mb-1 md:mb-2">Site Branding</h3>
+                 <p className="text-slate-500 text-[10px] md:text-sm">Customize the identity of your hub.</p>
+              </div>
+              <div className="glass-card p-6 md:p-8 rounded-2xl md:rounded-3xl border border-white/10 space-y-6">
+                <div className="space-y-4">
+                  <div className="flex flex-col items-center gap-4 py-4 border-b border-white/5">
+                    <div className="w-20 h-20 rounded-full border border-white/10 overflow-hidden shadow-2xl bg-slate-900">
+                      <img src={siteSettings.logoUrl} className="w-full h-full object-cover" alt="Logo Preview" />
+                    </div>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => logoInputRef.current?.click()}
+                        className="px-4 py-2 bg-indigo-500 text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-indigo-600 transition-all"
+                      >
+                        Upload Image Logo
+                      </button>
+                      <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'logo')} />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Hub Name</label>
+                    <input 
+                      type="text" 
+                      value={siteSettings.siteName}
+                      onChange={e => onUpdateSettings({...siteSettings, siteName: e.target.value})}
+                      className="w-full bg-slate-900 border border-white/10 rounded-2xl px-6 py-3 text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Tagline (Appears in Footer)</label>
+                    <input 
+                      type="text" 
+                      value={siteSettings.tagline}
+                      onChange={e => onUpdateSettings({...siteSettings, tagline: e.target.value})}
+                      className="w-full bg-slate-900 border border-white/10 rounded-2xl px-6 py-3 text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Logo URL (Alternative to Upload)</label>
+                    <input 
+                      type="text" 
+                      value={siteSettings.logoUrl}
+                      onChange={e => onUpdateSettings({...siteSettings, logoUrl: e.target.value})}
+                      className="w-full bg-slate-900 border border-white/10 rounded-2xl px-6 py-3 text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs"
+                      placeholder="https://..."
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           )}

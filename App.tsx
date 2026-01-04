@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { BlogPost, View, ManifestoItem } from './types.ts';
+import { BlogPost, View, ManifestoItem, SiteSettings } from './types.ts';
 import { INITIAL_POSTS } from './constants.ts';
 import Navbar from './components/Navbar.tsx';
 import PostCard from './components/PostCard.tsx';
@@ -13,6 +13,8 @@ import AmbientSoundscape from './components/AmbientSoundscape.tsx';
 import DreamJournal from './components/DreamJournal.tsx';
 import StarBackground from './components/StarBackground.tsx';
 import MidnightLibrary from './components/MidnightLibrary.tsx';
+// Fix: Import Logo component which was missing and causing a reference error
+import Logo from './components/Logo.tsx';
 
 const CATEGORIES = ['All', 'Reflections', 'Lifestyle', 'Legal', 'Faith', 'Dreams'];
 const MOODS = ['All Spirits', 'Quiet', 'Restless', 'Inspired', 'Melancholy'];
@@ -23,8 +25,14 @@ const DEFAULT_MANIFESTO: ManifestoItem[] = [
   { id: '3', title: "Honest Reflections", description: "No algorithms, no bait. Just whispers from one restless mind to another, shared in the safety of the quiet hours.", icon: "🖋️" }
 ];
 
+const DEFAULT_SETTINGS: SiteSettings = {
+  siteName: "readytowritehub",
+  tagline: "The Quiet Space",
+  accentColor: "#818cf8",
+  logoUrl: "https://images.unsplash.com/photo-1544077960-604201fe74bc?auto=format&fit=crop&q=80&w=200"
+};
+
 const App: React.FC = () => {
-  const [isDayMode, setIsDayMode] = useState(() => localStorage.getItem('rtwh_theme') === 'day');
   const [posts, setPosts] = useState<BlogPost[]>(() => {
     const saved = localStorage.getItem('rtwh_posts');
     return saved ? JSON.parse(saved) : (INITIAL_POSTS as BlogPost[]);
@@ -34,6 +42,11 @@ const App: React.FC = () => {
     const saved = localStorage.getItem('rtwh_manifesto');
     return saved ? JSON.parse(saved) : DEFAULT_MANIFESTO;
   });
+
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => {
+    const saved = localStorage.getItem('rtwh_settings');
+    return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
+  });
   
   const [currentView, setView] = useState<View>('landing');
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
@@ -42,26 +55,6 @@ const App: React.FC = () => {
   const [selectedMood, setSelectedMood] = useState('All Spirits');
   const [activeDreamers, setActiveDreamers] = useState(12);
   const [notifications, setNotifications] = useState<{id: string, text: string}[]>([]);
-
-  const toggleTheme = () => {
-    setIsDayMode(prev => {
-      const newVal = !prev;
-      localStorage.setItem('rtwh_theme', newVal ? 'day' : 'night');
-      return newVal;
-    });
-  };
-
-  useEffect(() => {
-    if (isDayMode) {
-      document.body.classList.add('day-mode');
-      document.body.classList.remove('bg-slate-950');
-      document.body.classList.add('bg-[#fdfcfb]');
-    } else {
-      document.body.classList.remove('day-mode');
-      document.body.classList.add('bg-slate-950');
-      document.body.classList.remove('bg-[#fdfcfb]');
-    }
-  }, [isDayMode]);
 
   const addNotification = useCallback((text: string) => {
     const id = Date.now().toString();
@@ -78,6 +71,10 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('rtwh_manifesto', JSON.stringify(manifesto));
   }, [manifesto]);
+
+  useEffect(() => {
+    localStorage.setItem('rtwh_settings', JSON.stringify(siteSettings));
+  }, [siteSettings]);
 
   useEffect(() => {
     const checkScheduledPosts = () => {
@@ -187,11 +184,11 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen sleepy-gradient selection:bg-indigo-500/30 overflow-x-hidden relative ${isDayMode ? 'text-slate-900' : 'text-slate-200'}`}>
-      {!isDayMode && <StarBackground />}
+    <div className={`min-h-screen sleepy-gradient selection:bg-indigo-500/30 overflow-x-hidden relative text-slate-200`}>
+      <StarBackground />
       
       <div className="relative z-10">
-        <Navbar currentView={currentView} setView={handleSetView} onToggleTheme={toggleTheme} isDayMode={isDayMode} />
+        <Navbar currentView={currentView} setView={handleSetView} logoUrl={siteSettings.logoUrl} siteName={siteSettings.siteName} tagline={siteSettings.tagline} />
         
         <AmbientSoundscape />
         <DreamJournal />
@@ -211,6 +208,7 @@ const App: React.FC = () => {
               onEnter={() => handleSetView('home')} 
               recentPosts={posts.filter(p => p.status === 'published')}
               onPostClick={handlePostClick}
+              siteName={siteSettings.siteName}
             />
           )}
 
@@ -220,14 +218,14 @@ const App: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-center gap-2 mb-2 md:mb-4">
                     <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-                    <span className={`text-[9px] md:text-[10px] font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] ${isDayMode ? 'text-indigo-600' : 'text-indigo-400'}`}>
-                      {activeDreamers} {isDayMode ? 'Souls' : 'Dreamers'} currently online
+                    <span className={`text-[9px] md:text-[10px] font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] text-indigo-400`}>
+                      {activeDreamers} Dreamers currently online
                     </span>
                   </div>
                   <h2 className="text-4xl sm:text-6xl md:text-8xl font-bold tracking-tight leading-none">
-                    The <span className="text-indigo-500">{isDayMode ? 'Morning' : 'Midnight'}</span> Journal
+                    The <span className="text-indigo-500">Midnight</span> Journal
                   </h2>
-                  <p className={`${isDayMode ? 'text-slate-600' : 'text-slate-400'} text-lg md:text-xl serif italic max-w-xl mx-auto`}>
+                  <p className={`text-slate-400 text-lg md:text-xl serif italic max-w-xl mx-auto`}>
                     A collection of quiet insights for the restless mind.
                   </p>
                 </div>
@@ -244,7 +242,7 @@ const App: React.FC = () => {
                       placeholder="Search for a whisper..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className={`w-full border rounded-full py-3 md:py-4 pl-12 pr-12 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all glass-card ${isDayMode ? 'text-slate-900 border-black/5' : 'text-white border-white/10'}`}
+                      className={`w-full border rounded-full py-3 md:py-4 pl-12 pr-12 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all glass-card text-white border-white/10`}
                     />
                   </div>
 
@@ -302,18 +300,18 @@ const App: React.FC = () => {
                         <span className="text-slate-400 text-xs">•</span>
                         <span className="text-indigo-400/60 text-[10px] md:text-xs italic">{featuredPost.mood}</span>
                       </div>
-                      <h3 className={`text-2xl md:text-4xl lg:text-5xl font-bold leading-tight group-hover:text-indigo-500 transition-colors ${isDayMode ? 'text-slate-900' : 'text-white'}`}>
+                      <h3 className={`text-2xl md:text-4xl lg:text-5xl font-bold leading-tight group-hover:text-indigo-500 transition-colors text-white`}>
                         {featuredPost.title}
                       </h3>
-                      <p className={`text-sm md:text-lg serif italic leading-relaxed line-clamp-3 ${isDayMode ? 'text-slate-600' : 'text-slate-400'}`}>
+                      <p className={`text-sm md:text-lg serif italic leading-relaxed line-clamp-3 text-slate-400`}>
                         "{featuredPost.excerpt}"
                       </p>
                       <div className="flex items-center gap-4 pt-4 md:pt-6 border-t border-white/5">
-                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full border flex items-center justify-center font-bold ${isDayMode ? 'bg-slate-200 border-slate-300 text-indigo-600' : 'bg-slate-800 border-white/10 text-indigo-300'}`}>
+                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full border flex items-center justify-center font-bold bg-slate-800 border-white/10 text-indigo-300`}>
                           {featuredPost.author[0]}
                         </div>
                         <div>
-                          <p className={`text-sm md:text-base font-medium ${isDayMode ? 'text-slate-900' : 'text-white'}`}>{featuredPost.author}</p>
+                          <p className={`text-sm md:text-base font-medium text-white`}>{featuredPost.author}</p>
                           <p className="text-slate-500 text-[10px] uppercase tracking-tighter">{featuredPost.date}</p>
                         </div>
                       </div>
@@ -339,7 +337,7 @@ const App: React.FC = () => {
               {filteredPosts.length === 0 && (
                 <div className="text-center py-20 md:py-40 animate-in fade-in duration-700">
                   <span className="text-3xl md:text-4xl block mb-4 md:mb-6 opacity-30">🌫️</span>
-                  <h4 className={`text-lg md:text-xl font-bold ${isDayMode ? 'text-slate-800' : 'text-white'}`}>The mist has swallowed everything.</h4>
+                  <h4 className={`text-lg md:text-xl font-bold text-white`}>The mist has swallowed everything.</h4>
                   <p className="text-slate-500 text-sm md:text-base italic serif mt-2">Try searching for a different spirit or category.</p>
                   <button 
                     onClick={() => { setSelectedMood('All Spirits'); setSelectedCategory('All'); setSearchQuery(''); }}
@@ -380,6 +378,11 @@ const App: React.FC = () => {
                 setManifesto(m);
                 addNotification("The Midnight Manifesto has been updated.");
               }}
+              siteSettings={siteSettings}
+              onUpdateSettings={(s) => {
+                setSiteSettings(s);
+                addNotification("Branding updated.");
+              }}
               onEdit={(post) => {
                 setSelectedPost(post);
                 handleSetView('edit');
@@ -403,17 +406,15 @@ const App: React.FC = () => {
           )}
         </main>
 
-        <footer className={`py-12 md:py-20 px-4 md:px-6 border-t ${isDayMode ? 'border-black/5' : 'border-white/5'} text-center mt-12 md:mt-20 relative overflow-hidden`}>
+        <footer className={`py-12 md:py-20 px-4 md:px-6 border-t border-white/5 text-center mt-12 md:mt-20 relative overflow-hidden`}>
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-indigo-500/10 to-transparent" />
           <div className="flex flex-col items-center gap-6 md:gap-8 max-w-lg mx-auto">
             <div className="flex items-center gap-2 grayscale opacity-40">
-               <div className="w-8 h-8 rounded-full border border-slate-500/20 flex items-center justify-center">
-                 <span className="text-xs">{isDayMode ? '☀️' : '📜'}</span>
-               </div>
-               <h4 className={`font-bold text-xs md:text-sm tracking-widest ${isDayMode ? 'text-slate-900' : 'text-white'}`}>READY TOWRITE HUB</h4>
+               <Logo className="h-8 w-8" src={siteSettings.logoUrl} />
+               <h4 className={`font-bold text-xs md:text-sm tracking-widest text-white uppercase`}>{siteSettings.siteName}</h4>
             </div>
             <p className="text-slate-500 text-xs md:text-sm leading-relaxed serif italic">
-              "We are such stuff as dreams are made on, and our little life is rounded with a sleep."
+              "{siteSettings.tagline || 'We are such stuff as dreams are made on...'}"
             </p>
             <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest">
               <button onClick={() => handleSetView('landing')} className="hover:text-indigo-500 transition-colors">Origins</button>
@@ -428,7 +429,7 @@ const App: React.FC = () => {
               </button>
             </div>
             <div className="pt-4">
-              <p className="text-slate-400 text-[8px] md:text-[9px] uppercase tracking-tighter">© 2024 readytowritehub — all rights reserved in the silence.</p>
+              <p className="text-slate-400 text-[8px] md:text-[9px] uppercase tracking-tighter">© 2024 {siteSettings.siteName} — all rights reserved in the silence.</p>
             </div>
           </div>
         </footer>

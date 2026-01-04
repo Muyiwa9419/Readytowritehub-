@@ -9,9 +9,10 @@ interface LandingViewProps {
   recentPosts: BlogPost[];
   onPostClick: (post: BlogPost) => void;
   manifesto: ManifestoItem[];
+  siteName: string;
 }
 
-const LandingView: React.FC<LandingViewProps> = ({ onEnter, recentPosts, onPostClick, manifesto }) => {
+const LandingView: React.FC<LandingViewProps> = ({ onEnter, recentPosts, onPostClick, manifesto, siteName }) => {
   const [musePrompt, setMusePrompt] = useState<string>('');
   const [loadingMuse, setLoadingMuse] = useState(false);
 
@@ -49,7 +50,7 @@ const LandingView: React.FC<LandingViewProps> = ({ onEnter, recentPosts, onPostC
         </div>
 
         <p className="max-w-2xl text-slate-400 text-base md:text-xl serif italic leading-relaxed px-4">
-          A slow-paced sanctuary where thoughts are penned in the hush of midnight and shared with the rising sun. ReadyToWriteHub is your digital pillow for the mind.
+          A slow-paced sanctuary where thoughts are penned in the hush of midnight and shared with the rising sun. <span className="uppercase font-bold tracking-widest text-indigo-300/80">{siteName}</span> is your digital pillow for the mind.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-6 pt-4 w-full sm:w-auto px-6">
@@ -158,7 +159,7 @@ const LandingView: React.FC<LandingViewProps> = ({ onEnter, recentPosts, onPostC
               I am Mosunmola, an Esq, a Writer, and the creative mind behind <span className="text-indigo-300 italic">Spokenwith Mosunmola</span>. I've spent my career balancing the rigid demands of law with the infinite freedom of storytelling.
             </p>
             <p>
-              ReadyToWriteHub is the convergence of those two worlds. It’s where I shed the legal robes to speak plainly and thoughtfully about the things that keep us awake, inspired, and human.
+              {siteName} is the convergence of those two worlds. It’s where I shed the legal robes to speak plainly and thoughtfully about the things that keep us awake, inspired, and human.
             </p>
           </div>
           <div className="flex justify-center md:justify-start gap-8 md:gap-10 pt-4 md:pt-6">
