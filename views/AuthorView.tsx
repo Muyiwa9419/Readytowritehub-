@@ -51,8 +51,8 @@ const AuthorView: React.FC = () => {
 
           <p className="text-slate-400 text-base md:text-lg serif italic leading-relaxed">
             "An Esq by day, a writer by night, and the brain box behind 
-            <span className="text-indigo-300"> Spokenwith Mosunmola</span>. 
-            I navigate the structured world of law and the fluid world of words 
+            <span className="text-indigo-300"> Evolving Mosun</span>. 
+            We navigate the structured world of law and the fluid world of words 
             to find where silence truly speaks."
           </p>
 
@@ -148,7 +148,7 @@ const AuthorView: React.FC = () => {
                   <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                   Routing...
                 </>
-              ) : 'Release into the Dark'}
+              ) : 'Release into the Light'}
             </button>
           </form>
         )}
