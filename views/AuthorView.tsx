@@ -39,14 +39,14 @@ const AuthorView: React.FC = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
           </div>
           <div className="absolute -bottom-4 -left-4 glass-card p-3 md:p-4 rounded-xl md:rounded-2xl border border-white/10 z-20 animate-float">
-            <p className="text-[9px] md:text-xs font-bold text-indigo-400 uppercase tracking-widest text-center">Counsel in session</p>
+            <p className="text-[9px] md:text-xs font-bold text-indigo-400 uppercase tracking-widest text-center">Barr. Mosunmola</p>
           </div>
         </div>
 
         <div className="w-full lg:w-1/2 space-y-6 md:space-y-8 text-center lg:text-left">
           <div className="space-y-3 md:space-y-4">
             <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.4em] md:tracking-[0.5em] text-indigo-500/80">The Scribe & Advocate</span>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-tight">I am <span className="text-indigo-400">Mosunmola.</span></h2>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-tight">I am <span className="text-indigo-400">Barr. Mosunmola.</span></h2>
           </div>
 
           <p className="text-slate-400 text-base md:text-lg serif italic leading-relaxed">
@@ -56,10 +56,6 @@ const AuthorView: React.FC = () => {
             to find where silence truly speaks."
           </p>
 
-          <p className="text-slate-400 text-lg serif italic leading-relaxed">
-            "An Esq by day, a writer by night, and the brain box behind <span className="text-indigo-300">Spokenwordwith Mosunmola</span>. I navigate the structured world of law and the fluid world of words to find where silence truly speaks."
-            (Fix logo import and update navbar branding)
-          </p>
           <div className="pt-2 flex justify-center lg:justify-start gap-4">
              <div className="h-px w-8 md:w-12 bg-indigo-500/30 self-center" />
              <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Writer • Esq • Speaker</p>

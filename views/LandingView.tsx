@@ -23,7 +23,7 @@ const LandingView: React.FC<LandingViewProps> = ({
   const [loadingMuse, setLoadingMuse] = useState(false);
 
   const author = {
-    name: "Mosunmola",
+    name: "Barr. Mosunmola",
     title: "Advocate & Writer",
     bio: "I have spent my career balancing the rigid demands of law with the infinite freedom of storytelling",
     image: authorImage,
@@ -199,15 +199,14 @@ const LandingView: React.FC<LandingViewProps> = ({
             </span>
 
             <h3 className="text-3xl md:text-5xl font-bold text-white leading-tight">
-              {author.name},{" "}
-              {author.title?.split("&")?.[0]?.trim() || "Professional"}.
+              {author.name}{" "}
+              {/* {author.title?.split("&")?.[0]?.trim() || "Professional"}. */}
             </h3>
           </div>
 
           <div className="space-y-4 md:space-y-6 text-slate-400 serif text-base md:text-lg leading-relaxed">
             <p>
-              {author.bio?.split(".")?.[0]}. I've spent my career balancing the rigid
-              demands of law with the infinite freedom of storytelling.
+              {author.bio?.split(".")?.[0]}. 
             </p>
 
             <p>
