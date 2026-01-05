@@ -32,7 +32,7 @@ const AuthorView: React.FC = () => {
           <div className="absolute -inset-4 bg-indigo-500/10 rounded-[2rem] md:rounded-[3rem] blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />
           <div className="aspect-[3/4] rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-white/10 glass-card relative z-10">
             <img 
-              src="assets/author1.JPG" 
+              src="assets/author1.jpg" 
               alt="Mosunmola" 
               className="w-full h-full object-cover grayscale opacity-40 hover:opacity-60 hover:grayscale-0 transition-all duration-1000"
             />
