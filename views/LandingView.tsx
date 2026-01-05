@@ -175,7 +175,7 @@ const LandingView: React.FC<LandingViewProps> = ({
 
           <div className="aspect-[4/5] rounded-[2rem] md:rounded-[3rem] overflow-hidden glass-card relative border border-white/10">
             <img
-              src="assets/author2.png"
+              src={authorImage}
               alt="author"
               className="w-full h-full object-cover opacity-60 grayscale hover:grayscale-0 transition-all duration-1000"
             />
