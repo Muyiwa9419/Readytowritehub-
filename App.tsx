@@ -410,7 +410,7 @@ const App: React.FC = () => {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-indigo-500/10 to-transparent" />
           <div className="flex flex-col items-center gap-6 md:gap-8 max-w-lg mx-auto">
             <div className="flex items-center gap-2 grayscale opacity-40">
-               <Logo className="h-8 w-8" src={siteSettings.logoUrl} />
+            <Logo className="h-15 w-20 group-hover:rotate-12 transition-transform duration-500" />
                <h4 className={`font-bold text-xs md:text-sm tracking-widest text-white uppercase`}>{siteSettings.siteName}</h4>
             </div>
             <p className="text-slate-500 text-xs md:text-sm leading-relaxed serif italic">
@@ -429,7 +429,7 @@ const App: React.FC = () => {
               </button>
             </div>
             <div className="pt-4">
-              <p className="text-slate-400 text-[8px] md:text-[9px] uppercase tracking-tighter">© 2024 {siteSettings.siteName} — all rights reserved in the silence.</p>
+              <p className="text-slate-400 text-[8px] md:text-[9px] uppercase tracking-tighter">© 2026 {siteSettings.siteName} — all rights reserved in the silence.</p>
             </div>
           </div>
         </footer>
