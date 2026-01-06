@@ -1,7 +1,8 @@
 
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// Strictly follow guidelines for initializing with process.env.API_KEY
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const generateBlogIdea = async (topic: string) => {
   const response = await ai.models.generateContent({

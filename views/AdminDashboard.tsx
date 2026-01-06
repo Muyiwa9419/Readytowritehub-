@@ -1,7 +1,6 @@
 
-import React, { useState, useRef, useEffect } from 'react';
-import { BlogPost, Comment, ManifestoItem, SiteSettings } from '../types';
-import { generateBlogIdea, expandContentStream } from '../services/geminiService';
+import React, { useState, useEffect } from 'react';
+import { BlogPost, Comment, SiteSettings, AuthorProfile, ManifestoItem } from '../types.ts';
 
 interface AdminDashboardProps {
   posts: BlogPost[];
@@ -12,128 +11,89 @@ interface AdminDashboardProps {
   isEditing?: boolean;
   editingPost?: BlogPost | null;
   onCancel?: () => void;
-  manifesto?: ManifestoItem[];
-  onUpdateManifesto?: (manifesto: ManifestoItem[]) => void;
   siteSettings?: SiteSettings;
   onUpdateSettings?: (settings: SiteSettings) => void;
+  authorProfile?: AuthorProfile;
+  onUpdateAuthor?: (profile: AuthorProfile) => void;
+  manifesto?: ManifestoItem[];
+  onUpdateManifesto?: (manifesto: ManifestoItem[]) => void;
 }
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ 
-  posts, onSave, onDelete, onEdit, onCreate, isEditing, editingPost, onCancel, manifesto = [], onUpdateManifesto, siteSettings, onUpdateSettings 
+  posts, onSave, onDelete, onEdit, onCreate, isEditing, editingPost, onCancel, siteSettings, onUpdateSettings, authorProfile, onUpdateAuthor, manifesto, onUpdateManifesto 
 }) => {
-  const [activeTab, setActiveTab] = useState<'posts' | 'comments' | 'scheduled' | 'manifesto' | 'branding' | 'security'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'reflections' | 'branding' | 'profile' | 'security' | 'manifesto'>('posts');
   const [allComments, setAllComments] = useState<(Comment & { postTitle: string })[]>([]);
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const logoInputRef = useRef<HTMLInputElement>(null);
   
-  // Password state
-  const [passwordForm, setPasswordForm] = useState({ current: '', next: '', confirm: '' });
-  const [passwordError, setPasswordError] = useState('');
-  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [passwords, setPasswords] = useState({ current: '', next: '', confirm: '' });
+  const [securityMessage, setSecurityMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
 
   const [formData, setFormData] = useState<Partial<BlogPost>>(
     editingPost || {
       title: '',
       excerpt: '',
       content: '',
-      author: 'Mosunmola, Esq',
       category: 'Reflections',
       mood: 'Quiet',
-      status: 'draft',
-      imageUrl: `https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80&w=800`,
-      scheduledDate: new Date(Date.now() + 3600000).toISOString().slice(0, 16)
+      status: 'published',
+      imageUrl: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80&w=800'
     }
   );
 
-  const [aiLoading, setAiLoading] = useState(false);
-  const [suggestedIdeas, setSuggestedIdeas] = useState<{title: string, excerpt: string}[]>([]);
-  const [topic, setTopic] = useState('');
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    if (activeTab === 'comments') {
-      loadAllComments();
-    }
-  }, [activeTab, posts]);
-
-  const loadAllComments = () => {
-    const comments: (Comment & { postTitle: string })[] = [];
+  const loadComments = () => {
+    const collected: (Comment & { postTitle: string })[] = [];
     posts.forEach(post => {
       const saved = localStorage.getItem(`rtwh_comments_${post.id}`);
       if (saved) {
-        const postComments: Comment[] = JSON.parse(saved);
-        postComments.forEach(c => {
-          comments.push({ ...c, postTitle: post.title });
-        });
+        const comments: Comment[] = JSON.parse(saved);
+        comments.forEach(c => collected.push({ ...c, postTitle: post.title }));
       }
     });
-    setAllComments(comments.sort((a, b) => parseInt(b.id) - parseInt(a.id)));
+    setAllComments(collected.sort((a, b) => b.id.localeCompare(a.id)));
+  };
+
+  useEffect(() => {
+    if (activeTab === 'reflections') loadComments();
+  }, [activeTab, posts]);
+
+  const deleteComment = (postId: string, commentId: string) => {
+    const saved = localStorage.getItem(`rtwh_comments_${postId}`);
+    if (saved) {
+      const comments: Comment[] = JSON.parse(saved);
+      const filtered = comments.filter(c => c.id !== commentId);
+      localStorage.setItem(`rtwh_comments_${postId}`, JSON.stringify(filtered));
+      loadComments();
+    }
   };
 
   const handlePasswordChange = (e: React.FormEvent) => {
     e.preventDefault();
-    setPasswordError('');
-    setPasswordSuccess(false);
-
-    const storedPassword = localStorage.getItem('rtwh_admin_password') || 'Godpassage';
-
-    if (passwordForm.current !== storedPassword) {
-      setPasswordError('Current access key is incorrect.');
+    const stored = localStorage.getItem('rtwh_admin_password') || 'Godpassage';
+    
+    if (passwords.current !== stored) {
+      setSecurityMessage({ text: "Current access key is incorrect.", type: 'error' });
+      return;
+    }
+    if (passwords.next !== passwords.confirm) {
+      setSecurityMessage({ text: "New keys do not match.", type: 'error' });
+      return;
+    }
+    if (passwords.next.length < 4) {
+      setSecurityMessage({ text: "New key is too short.", type: 'error' });
       return;
     }
 
-    if (passwordForm.next !== passwordForm.confirm) {
-      setPasswordError('New keys do not match.');
-      return;
-    }
-
-    if (passwordForm.next.length < 4) {
-      setPasswordError('New key is too short.');
-      return;
-    }
-
-    localStorage.setItem('rtwh_admin_password', passwordForm.next);
-    setPasswordSuccess(true);
-    setPasswordForm({ current: '', next: '', confirm: '' });
+    localStorage.setItem('rtwh_admin_password', passwords.next);
+    setSecurityMessage({ text: "Access key updated successfully.", type: 'success' });
+    setPasswords({ current: '', next: '', confirm: '' });
   };
 
-  const handleAiSuggest = async () => {
-    if (!topic) return;
-    setAiLoading(true);
-    try {
-      const ideas = await generateBlogIdea(topic);
-      setSuggestedIdeas(ideas);
-    } catch (e) { console.error(e); }
-    finally { setAiLoading(false); }
-  };
-
-  const handleExpandContent = async () => {
-    if (!formData.title || !formData.excerpt) return;
-    setAiLoading(true);
-    try {
-      await expandContentStream(formData.title, formData.excerpt, (text) => {
-        setFormData(prev => ({ ...prev, content: text }));
-      });
-    } catch (e) { console.error(e); }
-    finally { setAiLoading(false); }
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, target: 'post' | 'logo') => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const result = reader.result as string;
-        if (target === 'post') {
-          setFormData(prev => ({ ...prev, imageUrl: result }));
-        } else if (target === 'logo' && siteSettings && onUpdateSettings) {
-          onUpdateSettings({ ...siteSettings, logoUrl: result });
-        }
+        setFormData({ ...formData, imageUrl: reader.result as string });
       };
       reader.readAsDataURL(file);
     }
@@ -141,396 +101,313 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const now = new Date();
-    const scheduledDateTime = formData.scheduledDate ? new Date(formData.scheduledDate) : now;
-    const isFuture = scheduledDateTime > now;
-    
-    let finalStatus: 'published' | 'draft' | 'scheduled' = formData.status || 'draft';
-    if (finalStatus === 'published' && isFuture) finalStatus = 'scheduled';
-    if (finalStatus === 'scheduled' && !isFuture) finalStatus = 'published';
-
-    const datePart = scheduledDateTime.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
-    const timePart = scheduledDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-    const fullTimestamp = `${datePart} • ${timePart}`;
-
     const newPost: BlogPost = {
       id: formData.id || Date.now().toString(),
       title: formData.title || 'Untitled',
       excerpt: formData.excerpt || '',
       content: formData.content || '',
-      author: formData.author || 'Mosunmola, Esq',
-      date: fullTimestamp,
-      readingTime: `${Math.max(1, Math.ceil((formData.content?.length || 0) / 1000))} min`,
+      author: authorProfile?.name || 'Mosunmola',
+      date: formData.date || new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+      readingTime: `${Math.ceil((formData.content?.split(' ').length || 0) / 200)} min`,
       category: formData.category || 'Reflections',
       mood: formData.mood || 'Quiet',
-      imageUrl: formData.imageUrl || 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80&w=800',
-      status: finalStatus,
-      scheduledDate: formData.scheduledDate,
-      likes: formData.likes || 0,
-      dislikes: formData.dislikes || 0,
-      ratingCount: formData.ratingCount || 0,
-      ratingSum: formData.ratingSum || 0,
+      imageUrl: formData.imageUrl || '',
+      status: formData.status as any || 'published',
+      scheduledDate: formData.status === 'scheduled' ? formData.scheduledDate : undefined
     };
     onSave(newPost);
   };
 
   if (isEditing) {
     return (
-      <div className="animate-in fade-in zoom-in-95 duration-500">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 md:mb-10">
-          <div>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">{editingPost ? 'Refine the Whisper' : 'Capture a New Thought'}</h2>
-            <p className="text-slate-500 text-sm md:text-base italic">Let the words flow softly into the void.</p>
+      <div className="animate-in fade-in zoom-in-95 duration-500 max-w-4xl mx-auto px-4 pb-20">
+        <div className="flex justify-between items-center mb-10 text-center sm:text-left">
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Refine thought</h2>
+          <button onClick={onCancel} className="text-slate-400 font-bold uppercase text-[10px] hover:text-indigo-600 transition-colors">Cancel</button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-6 glass-card p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-slate-100 bg-white shadow-xl">
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Title</label>
+            <input type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-indigo-600/10 outline-none" placeholder="The Quiet Scribe..." />
           </div>
-          <button onClick={onCancel} className="text-slate-400 hover:text-white transition-colors text-sm">Cancel</button>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-10">
-          <form onSubmit={handleSubmit} className="lg:col-span-2 space-y-6 bg-white/5 p-6 md:p-8 rounded-2xl md:rounded-3xl border border-white/10">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Title</label>
-                <input type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-white text-sm" placeholder="The Midnight Garden..." />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Category</label>
-                <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-white text-sm">
-                  <option>Reflections</option>
-                  <option>Lifestyle</option>
-                  <option>Legal</option>
-                  <option>Faith</option>
-                  <option>Dreams</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Spirit Mood</label>
-                <select value={formData.mood} onChange={e => setFormData({...formData, mood: e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-white text-sm"><option>Quiet</option><option>Restless</option><option>Inspired</option><option>Melancholy</option></select>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Arrival Time (Publish Schedule)</label>
-                <input type="datetime-local" value={formData.scheduledDate} onChange={e => setFormData({...formData, scheduledDate: e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-white text-sm scheme-dark" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Banner Image URL or Upload</label>
-                <div className="flex gap-2">
-                  <input type="text" value={formData.imageUrl} onChange={e => setFormData({...formData, imageUrl: e.target.value})} className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-white text-sm" placeholder="Unsplash URL..." />
-                  <button 
-                    type="button" 
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-4 bg-white/10 border border-white/10 rounded-xl text-indigo-400 hover:bg-white/20 transition-all text-sm font-bold"
-                  >
-                    Upload
-                  </button>
-                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'post')} />
+          
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Post Banner</label>
+            <div className="flex flex-col gap-4">
+              {formData.imageUrl && (
+                <div className="w-full h-32 md:h-40 rounded-xl md:rounded-2xl overflow-hidden border border-slate-100 shadow-inner">
+                  <img src={formData.imageUrl} alt="Banner Preview" className="w-full h-full object-cover" />
                 </div>
+              )}
+              <div className="flex items-center justify-center w-full">
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-100 border-dashed rounded-xl md:rounded-2xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors group">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg className="w-8 h-8 mb-2 text-slate-400 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                    <p className="mb-1 text-[10px] text-slate-500 font-bold uppercase tracking-widest">Click to upload banner</p>
+                    <p className="text-[8px] text-slate-400 uppercase">SVG, PNG, JPG or GIF</p>
+                  </div>
+                  <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                </label>
               </div>
+              <input 
+                type="text" 
+                value={formData.imageUrl} 
+                onChange={e => setFormData({...formData, imageUrl: e.target.value})} 
+                placeholder="Or paste image URL here..." 
+                className="w-full p-3 rounded-xl bg-slate-50 text-[10px] outline-none"
+              />
             </div>
+          </div>
 
-            {formData.imageUrl && (
-              <div className="w-full h-32 rounded-xl overflow-hidden border border-white/10">
-                <img src={formData.imageUrl} className="w-full h-full object-cover opacity-50" alt="Banner Preview" />
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Status</label>
-                <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value as any})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-white text-sm">
-                  <option value="draft">Draft</option>
-                  <option value="published">Published</option>
-                  <option value="scheduled">Scheduled</option>
-                </select>
-              </div>
-            </div>
-
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Excerpt</label>
-              <textarea value={formData.excerpt} onChange={e => setFormData({...formData, excerpt: e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-white h-20 text-sm" />
+              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Category</label>
+              <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl outline-none">
+                <option>Reflections</option>
+                <option>Lifestyle</option>
+                <option>Faith</option>
+                <option>Legal</option>
+                <option>Dreams</option>
+              </select>
             </div>
             <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Content</label>
-                <button type="button" onClick={handleExpandContent} disabled={aiLoading} className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-indigo-400 hover:text-indigo-300 disabled:opacity-50">{aiLoading ? 'Dreaming...' : '✨ Expand with AI'}</button>
-              </div>
-              <textarea value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-white h-60 md:h-96 serif text-base" />
+              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Status</label>
+              <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value as any})} className="w-full p-4 rounded-xl md:rounded-2xl outline-none">
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+                <option value="scheduled">Scheduled</option>
+              </select>
             </div>
-            <div className="flex items-center gap-6 pt-6 border-t border-white/5">
-              <button type="submit" className="w-full md:w-auto ml-auto bg-indigo-500 hover:bg-indigo-600 text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-indigo-500/20 transition-all active:scale-95 text-sm">Save Thought</button>
+          </div>
+
+          {formData.status === 'scheduled' && (
+            <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+              <label className="text-[10px] font-bold uppercase text-indigo-600 ml-2">Schedule Time</label>
+              <input 
+                type="datetime-local" 
+                value={formData.scheduledDate || ''} 
+                onChange={e => setFormData({...formData, scheduledDate: e.target.value})} 
+                className="w-full p-4 rounded-xl md:rounded-2xl border-indigo-100 border outline-none" 
+              />
             </div>
-          </form>
-          <aside className="space-y-8">
-            <div className="glass-card p-6 rounded-2xl md:rounded-3xl border border-white/10">
-              <h3 className="text-base md:text-lg font-bold mb-4 flex items-center gap-2"><span className="text-indigo-400">✨</span> Assistant</h3>
-              <div className="space-y-4">
-                <div className="relative">
-                  <input type="text" placeholder="Topic..." value={topic} onChange={e => setTopic(e.target.value)} className="w-full bg-slate-900 border border-white/10 rounded-xl pl-4 pr-12 py-3 focus:outline-none text-sm" />
-                  <button type="button" onClick={handleAiSuggest} className="absolute right-2 top-2 p-1 text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-colors">Go</button>
-                </div>
-                <div className="space-y-3 max-h-60 overflow-y-auto pr-2 no-scrollbar">
-                  {suggestedIdeas.map((idea, i) => (
-                    <div key={i} className="p-3 bg-white/5 rounded-xl border border-white/5 hover:border-indigo-500/30 cursor-pointer transition-all group" onClick={() => setFormData({ ...formData, title: idea.title, excerpt: idea.excerpt })}>
-                      <p className="text-[11px] font-bold text-indigo-300 group-hover:text-indigo-200">{idea.title}</p>
-                      <p className="text-[10px] text-slate-500 italic mt-1 line-clamp-2">{idea.excerpt}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </aside>
-        </div>
+          )}
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Excerpt</label>
+            <textarea value={formData.excerpt} onChange={e => setFormData({...formData, excerpt: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl h-24 outline-none" placeholder="A brief whisper..." />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Content</label>
+            <textarea value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl h-64 serif italic outline-none" placeholder="Spill your soul..." />
+          </div>
+          <button type="submit" className="w-full bg-indigo-600 text-white p-5 rounded-full font-bold shadow-xl hover:bg-indigo-700 transition-all uppercase tracking-widest text-xs">
+            Save Insight
+          </button>
+        </form>
       </div>
     );
   }
 
-  const filteredDisplayPosts = posts.filter(p => activeTab === 'posts' ? (p.status !== 'scheduled') : (p.status === 'scheduled'));
-
   return (
-    <div className="space-y-8 md:space-y-12 animate-in fade-in slide-in-from-right-4 duration-700">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-        <div className="w-full">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Workspace</h2>
-          <div className="flex gap-4 md:gap-6 mt-4 overflow-x-auto no-scrollbar pb-2">
-            <button onClick={() => setActiveTab('posts')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'posts' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Feed</button>
-            <button onClick={() => setActiveTab('scheduled')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'scheduled' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Future ({posts.filter(p => p.status === 'scheduled').length})</button>
-            <button onClick={() => setActiveTab('comments')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'comments' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Comments</button>
-            <button onClick={() => setActiveTab('manifesto')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'manifesto' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Manifesto</button>
-            <button onClick={() => setActiveTab('branding')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'branding' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Branding</button>
-            <button onClick={() => setActiveTab('security')} className={`text-[10px] md:text-xs font-bold uppercase tracking-widest pb-2 border-b-2 transition-all whitespace-nowrap ${activeTab === 'security' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>Security</button>
-          </div>
-        </div>
-        <button onClick={onCreate} className="w-full md:w-auto bg-white text-slate-950 px-6 py-3 rounded-full font-bold hover:bg-indigo-400 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2 shadow-xl text-sm"><span>+</span> Capture Thought</button>
+    <div className="space-y-8 md:space-y-10 animate-in fade-in slide-in-from-right-4 duration-700 px-4 pb-20 max-w-5xl mx-auto">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-6 text-center sm:text-left">
+        <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Portal</h2>
+        <button onClick={onCreate} className="w-full sm:w-auto bg-indigo-600 text-white px-8 py-4 rounded-full font-bold shadow-xl text-sm uppercase tracking-widest hover:scale-105 transition-transform active:scale-95">
+          + New Whisper
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <div className="lg:col-span-3 space-y-4">
-          {(activeTab === 'posts' || activeTab === 'scheduled') && (
-            <div className="glass-card rounded-2xl md:rounded-3xl overflow-hidden border border-white/5">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left min-w-[500px]">
-                  <thead className="bg-white/5 text-[9px] md:text-[10px] uppercase tracking-widest text-slate-500 font-bold">
-                    <tr><th className="px-6 py-4">Title</th><th className="px-6 py-4">Status</th><th className="px-6 py-4 text-right">Actions</th></tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {filteredDisplayPosts.map(post => (
-                      <tr key={post.id} className="hover:bg-white/5 transition-colors group">
-                        <td className="px-6 py-4">
-                          <p className="text-white text-sm font-medium group-hover:text-indigo-300 transition-colors line-clamp-1">{post.title}</p>
-                          <p className="text-[9px] md:text-[10px] text-slate-500">{post.date}</p>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${post.status === 'published' ? 'bg-green-500/10 text-green-400' : post.status === 'scheduled' ? 'bg-indigo-500/10 text-indigo-400' : 'bg-amber-500/10 text-amber-400'}`}>
-                            {post.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-3 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => onEdit?.(post)} className="text-indigo-400 hover:text-white text-xs font-bold underline">Edit</button>
-                            <button onClick={() => onDelete(post.id)} className="text-red-400 hover:text-white text-xs font-bold underline">Trash</button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+      <div className="flex gap-4 md:gap-8 border-b border-slate-100 overflow-x-auto no-scrollbar justify-start">
+        {[
+          { id: 'posts', label: 'Whispers' },
+          { id: 'reflections', label: 'Reflections' },
+          { id: 'branding', label: 'Branding' },
+          { id: 'manifesto', label: 'Manifesto' },
+          { id: 'profile', label: 'Scribe' },
+          { id: 'security', label: 'Security' }
+        ].map(tab => (
+          <button 
+            key={tab.id} 
+            onClick={() => setActiveTab(tab.id as any)} 
+            className={`pb-3 text-[10px] font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${activeTab === tab.id ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            {tab.label}
+            {activeTab === tab.id && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600" />}
+          </button>
+        ))}
+      </div>
 
-          {activeTab === 'branding' && siteSettings && onUpdateSettings && (
-            <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4">
-              <div className="bg-indigo-500/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[3rem] border border-white/5 mb-4 text-center md:text-left">
-                 <h3 className="text-white font-bold text-lg md:text-xl mb-1 md:mb-2">Site Branding</h3>
-                 <p className="text-slate-500 text-[10px] md:text-sm">Customize the identity of your hub.</p>
-              </div>
-              <div className="glass-card p-6 md:p-8 rounded-2xl md:rounded-3xl border border-white/10 space-y-6">
-                <div className="space-y-4">
-                  <div className="flex flex-col items-center gap-4 py-4 border-b border-white/5">
-                    <div className="w-20 h-20 rounded-full border border-white/10 overflow-hidden shadow-2xl bg-slate-900">
-                      <img src={siteSettings.logoUrl} className="w-full h-full object-cover" alt="Logo Preview" />
-                    </div>
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => logoInputRef.current?.click()}
-                        className="px-4 py-2 bg-indigo-500 text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-indigo-600 transition-all"
-                      >
-                        Upload Image Logo
-                      </button>
-                      <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'logo')} />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Hub Name</label>
-                    <input 
-                      type="text" 
-                      value={siteSettings.siteName}
-                      onChange={e => onUpdateSettings({...siteSettings, siteName: e.target.value})}
-                      className="w-full bg-slate-900 border border-white/10 rounded-2xl px-6 py-3 text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Tagline (Appears in Footer)</label>
-                    <input 
-                      type="text" 
-                      value={siteSettings.tagline}
-                      onChange={e => onUpdateSettings({...siteSettings, tagline: e.target.value})}
-                      className="w-full bg-slate-900 border border-white/10 rounded-2xl px-6 py-3 text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Logo URL (Alternative to Upload)</label>
-                    <input 
-                      type="text" 
-                      value={siteSettings.logoUrl}
-                      onChange={e => onUpdateSettings({...siteSettings, logoUrl: e.target.value})}
-                      className="w-full bg-slate-900 border border-white/10 rounded-2xl px-6 py-3 text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs"
-                      placeholder="https://..."
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'manifesto' && (
-            <div className="space-y-6">
-              <div className="bg-indigo-500/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[3rem] border border-white/5 mb-4 text-center md:text-left">
-                 <h3 className="text-white font-bold text-lg md:text-xl mb-1 md:mb-2">The Midnight Manifesto</h3>
-                 <p className="text-slate-500 text-[10px] md:text-sm">Define the soul of the hub. These values are displayed on the landing origins.</p>
-              </div>
-              <div className="grid grid-cols-1 gap-4 md:gap-6">
-                {manifesto.map((item, index) => (
-                  <div key={item.id} className="glass-card p-6 md:p-8 rounded-2xl md:rounded-3xl border border-white/10 space-y-4">
-                    <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4">
-                       <input 
-                        type="text" 
-                        value={item.icon}
-                        onChange={(e) => {
-                          const newM = [...manifesto];
-                          newM[index].icon = e.target.value;
-                          onUpdateManifesto?.(newM);
-                        }}
-                        className="w-12 h-12 md:w-14 md:h-14 bg-slate-900 border border-white/10 rounded-2xl text-center text-xl md:text-2xl focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                       />
-                       <input 
-                        type="text" 
-                        value={item.title}
-                        onChange={(e) => {
-                          const newM = [...manifesto];
-                          newM[index].title = e.target.value;
-                          onUpdateManifesto?.(newM);
-                        }}
-                        className="w-full flex-1 bg-slate-900 border border-white/10 rounded-2xl px-4 md:px-6 py-3 md:py-4 text-white text-sm md:text-base font-bold focus:outline-none focus:ring-1 focus:ring-indigo-500 text-center sm:text-left"
-                       />
-                    </div>
-                    <textarea 
-                      value={item.description}
-                      onChange={(e) => {
-                        const newM = [...manifesto];
-                        newM[index].description = e.target.value;
-                        onUpdateManifesto?.(newM);
-                      }}
-                      className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 md:px-6 py-3 md:py-4 text-slate-400 text-xs md:text-sm serif italic focus:outline-none focus:ring-1 focus:ring-indigo-500 h-24 text-center sm:text-left"
-                    />
-                  </div>
+      {activeTab === 'posts' && (
+        <div className="glass-card rounded-2xl md:rounded-[2rem] overflow-hidden border border-slate-100 bg-white shadow-xl">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left min-w-[600px]">
+              <thead className="bg-slate-50 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                <tr>
+                  <th className="px-6 py-4">Thought</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {posts.map(post => (
+                  <tr key={post.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <p className="font-bold text-slate-900 text-sm">{post.title}</p>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-tighter">{post.category} • {post.date}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`text-[9px] font-bold uppercase px-3 py-1 rounded-full ${
+                        post.status === 'published' ? 'bg-green-50 text-green-600' : 
+                        post.status === 'scheduled' ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-100 text-slate-500'
+                      }`}>
+                        {post.status}
+                      </span>
+                      {post.status === 'scheduled' && post.scheduledDate && (
+                        <p className="text-[8px] text-indigo-400 mt-1">{new Date(post.scheduledDate).toLocaleString()}</p>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button onClick={() => onEdit?.(post)} className="text-indigo-600 font-bold mr-4 text-[10px] uppercase hover:underline">Edit</button>
+                      <button onClick={() => onDelete(post.id)} className="text-red-400 font-bold text-[10px] uppercase hover:underline">Trash</button>
+                    </td>
+                  </tr>
                 ))}
-              </div>
-            </div>
-          )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
-          {activeTab === 'security' && (
-            <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4">
-              <div className="bg-indigo-500/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[3rem] border border-white/5 mb-4 text-center md:text-left">
-                 <h3 className="text-white font-bold text-lg md:text-xl mb-1 md:mb-2">Scribe Security</h3>
-                 <p className="text-slate-500 text-[10px] md:text-sm">Protect your portal. Change your access key regularly.</p>
-              </div>
-              <form onSubmit={handlePasswordChange} className="glass-card p-6 md:p-8 rounded-2xl md:rounded-3xl border border-white/10 space-y-6">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Current Access Key</label>
-                    <input 
-                      required
-                      type="password" 
-                      value={passwordForm.current}
-                      onChange={e => setPasswordForm({...passwordForm, current: e.target.value})}
-                      className="w-full bg-slate-900 border border-white/10 rounded-2xl px-6 py-3 text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                    />
+      {activeTab === 'reflections' && (
+        <div className="space-y-4">
+          {allComments.length === 0 ? (
+            <div className="text-center py-20 bg-white rounded-2xl md:rounded-[2rem] border border-slate-100">
+               <p className="text-slate-400 serif italic">No reflections have been shared yet.</p>
+            </div>
+          ) : (
+            allComments.map(comment => (
+              <div key={comment.id} className="glass-card p-6 rounded-2xl md:rounded-[2rem] bg-white border border-slate-100 flex flex-col sm:flex-row justify-between gap-4 items-center">
+                <div className="flex-1 text-center sm:text-left">
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2">
+                    <span className="text-[10px] font-bold uppercase text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">Re: {comment.postTitle}</span>
+                    <span className="hidden sm:inline text-slate-300 text-[10px]">•</span>
+                    <span className="text-slate-400 text-[10px] uppercase font-bold">{comment.date}</span>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">New Access Key</label>
-                    <input 
-                      required
-                      type="password" 
-                      value={passwordForm.next}
-                      onChange={e => setPasswordForm({...passwordForm, next: e.target.value})}
-                      className="w-full bg-slate-900 border border-white/10 rounded-2xl px-6 py-3 text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Confirm New Key</label>
-                    <input 
-                      required
-                      type="password" 
-                      value={passwordForm.confirm}
-                      onChange={e => setPasswordForm({...passwordForm, confirm: e.target.value})}
-                      className="w-full bg-slate-900 border border-white/10 rounded-2xl px-6 py-3 text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                    />
-                  </div>
+                  <p className="text-slate-900 font-bold text-sm mb-1">{comment.author}</p>
+                  <p className="text-slate-600 serif italic text-sm md:text-base leading-relaxed">"{comment.text}"</p>
                 </div>
-
-                {passwordError && (
-                  <p className="text-xs text-red-400 font-bold bg-red-400/10 px-4 py-2 rounded-lg border border-red-400/20">{passwordError}</p>
-                )}
-
-                {passwordSuccess && (
-                  <p className="text-xs text-green-400 font-bold bg-green-400/10 px-4 py-2 rounded-lg border border-green-400/20">The keys have been updated. Your portal is secure.</p>
-                )}
-
                 <button 
-                  type="submit"
-                  className="w-full bg-white text-slate-950 py-3 rounded-2xl font-bold hover:bg-indigo-400 hover:text-white transition-all active:scale-[0.98]"
+                  onClick={() => deleteComment(comment.postId, comment.id)}
+                  className="text-red-400 text-[10px] font-bold uppercase hover:bg-red-50 px-4 py-2 rounded-full transition-colors whitespace-nowrap"
                 >
-                  Update Access Key
+                  Set Free
                 </button>
-              </form>
-            </div>
-          )}
-
-          {activeTab === 'comments' && (
-            <div className="glass-card rounded-2xl md:rounded-3xl overflow-hidden border border-white/5">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left min-w-[500px]">
-                  <thead className="bg-white/5 text-[9px] md:text-[10px] uppercase tracking-widest text-slate-500 font-bold">
-                    <tr><th className="px-6 py-4">Comment</th><th className="px-6 py-4">Author</th><th className="px-6 py-4 text-right">Actions</th></tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {allComments.map(comment => (
-                      <tr key={comment.id} className="hover:bg-white/5 transition-colors group">
-                        <td className="px-6 py-4 max-w-xs"><p className="text-white text-[11px] md:text-xs serif italic line-clamp-2">"{comment.text}"</p></td>
-                        <td className="px-6 py-4 text-indigo-300 text-[10px] md:text-xs font-bold">{comment.author}</td>
-                        <td className="px-6 py-4 text-right"><button onClick={() => {}} className="text-red-400 hover:text-red-300 text-xs font-bold md:opacity-0 group-hover:opacity-100 transition-opacity underline">Delete</button></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
               </div>
-            </div>
+            ))
           )}
         </div>
+      )}
 
-        <div className="space-y-6 md:space-y-8">
-          <div className="glass-card p-6 rounded-2xl md:rounded-3xl border border-white/5 bg-indigo-500/5">
-            <h4 className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-4 flex items-center justify-center md:justify-start gap-2"><span className="w-1 h-1 rounded-full bg-indigo-400 animate-pulse" />Overview</h4>
+      {activeTab === 'branding' && siteSettings && onUpdateSettings && (
+        <div className="max-w-xl mx-auto space-y-6 w-full">
+          <div className="glass-card p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-100 bg-white shadow-xl space-y-6">
             <div className="space-y-4">
-              <div className="flex justify-between items-center text-[11px]"><span className="text-slate-500">Live Time:</span><span className="text-white font-mono">{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span></div>
-              <div className="flex justify-between items-center text-[11px]"><span className="text-slate-500">Thought Log:</span><span className="text-indigo-300 font-bold">{posts.length}</span></div>
+              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Hub Name</label>
+              <input type="text" value={siteSettings.siteName} onChange={e => onUpdateSettings({...siteSettings, siteName: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none" />
+            </div>
+            <div className="space-y-4">
+              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Tagline</label>
+              <input type="text" value={siteSettings.tagline} onChange={e => onUpdateSettings({...siteSettings, tagline: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none" />
             </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {activeTab === 'manifesto' && manifesto && onUpdateManifesto && (
+        <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in w-full">
+          <div className="space-y-6">
+            {manifesto.map((item, index) => (
+              <div key={item.id} className="glass-card p-6 rounded-2xl md:rounded-[2rem] bg-white border border-slate-100 shadow-lg space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Icon</label>
+                    <input type="text" value={item.icon} onChange={e => {
+                      const next = [...manifesto];
+                      next[index] = { ...item, icon: e.target.value };
+                      onUpdateManifesto(next);
+                    }} className="w-full p-3 rounded-xl bg-slate-50 outline-none" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Title</label>
+                    <input type="text" value={item.title} onChange={e => {
+                      const next = [...manifesto];
+                      next[index] = { ...item, title: e.target.value };
+                      onUpdateManifesto(next);
+                    }} className="w-full p-3 rounded-xl bg-slate-50 outline-none" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Description</label>
+                  <textarea value={item.description} onChange={e => {
+                    const next = [...manifesto];
+                    next[index] = { ...item, description: e.target.value };
+                    onUpdateManifesto(next);
+                  }} className="w-full p-3 rounded-xl bg-slate-50 h-24 outline-none text-sm" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'profile' && authorProfile && onUpdateAuthor && (
+        <div className="max-w-xl mx-auto space-y-6 w-full">
+           <div className="glass-card p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-100 bg-white shadow-xl space-y-6">
+            <div className="space-y-4">
+              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Scribe Name</label>
+              <input type="text" value={authorProfile.name} onChange={e => onUpdateAuthor({...authorProfile, name: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none" />
+            </div>
+            <div className="space-y-4">
+              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Professional Title</label>
+              <input type="text" value={authorProfile.title} onChange={e => onUpdateAuthor({...authorProfile, title: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none" />
+            </div>
+            <div className="space-y-4">
+              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Soul Bio</label>
+              <textarea value={authorProfile.bio} onChange={e => onUpdateAuthor({...authorProfile, bio: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 h-32 outline-none" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'security' && (
+        <div className="max-w-xl mx-auto space-y-6 w-full">
+           <form onSubmit={handlePasswordChange} className="glass-card p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-100 bg-white shadow-xl space-y-6">
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Change Access Key</h3>
+            
+            {securityMessage && (
+              <div className={`p-4 rounded-xl text-[10px] font-bold uppercase tracking-widest ${securityMessage.type === 'success' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                {securityMessage.text}
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Current Key</label>
+              <input required type="password" value={passwords.current} onChange={e => setPasswords({...passwords, current: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none" />
+            </div>
+            <div className="space-y-4">
+              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">New Key</label>
+              <input required type="password" value={passwords.next} onChange={e => setPasswords({...passwords, next: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none" />
+            </div>
+            <div className="space-y-4">
+              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Confirm New Key</label>
+              <input required type="password" value={passwords.confirm} onChange={e => setPasswords({...passwords, confirm: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none" />
+            </div>
+            <button type="submit" className="w-full bg-slate-900 text-white p-5 rounded-full font-bold shadow-xl hover:bg-indigo-600 transition-all uppercase tracking-widest text-xs">
+              Update Security Key
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 };

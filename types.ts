@@ -33,6 +33,14 @@ export interface Comment {
   date: string;
 }
 
+export interface AuthorProfile {
+  name: string;
+  title: string;
+  bio: string;
+  imageUrl: string;
+  rituals: { title: string; desc: string; icon: string }[];
+}
+
 export interface SiteSettings {
   siteName: string;
   tagline: string;

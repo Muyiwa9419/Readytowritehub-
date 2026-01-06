@@ -24,45 +24,46 @@ const StarBackground: React.FC = () => {
       opacity: number;
       baseX: number;
       baseY: number;
+      color: string;
 
       constructor() {
         this.x = Math.random() * canvas!.width;
         this.y = Math.random() * canvas!.height;
         this.baseX = this.x;
         this.baseY = this.y;
-        this.size = Math.random() * 1.5 + 0.5;
-        this.speedX = (Math.random() - 0.5) * 0.2;
-        this.speedY = (Math.random() - 0.5) * 0.2;
-        this.opacity = Math.random() * 0.5 + 0.1;
+        this.size = Math.random() * 1.8 + 0.4;
+        this.speedX = (Math.random() - 0.5) * 0.15;
+        this.speedY = (Math.random() - 0.5) * 0.15;
+        this.opacity = Math.random() * 0.3 + 0.05;
+        // Use soft indigo and gold for a morning sparkle effect
+        const colors = ['147, 197, 253', '199, 210, 254', '252, 211, 77'];
+        this.color = colors[Math.floor(Math.random() * colors.length)];
       }
 
       update() {
-        // Drift
         this.x += this.speedX;
         this.y += this.speedY;
 
-        // Wrap around
         if (this.x < 0) this.x = canvas!.width;
         if (this.x > canvas!.width) this.x = 0;
         if (this.y < 0) this.y = canvas!.height;
         if (this.y > canvas!.height) this.y = 0;
 
-        // Mouse interaction
         const dx = mouse.x - this.x;
         const dy = mouse.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const maxDistance = 150;
+        const maxDistance = 200;
 
         if (distance < maxDistance) {
           const force = (maxDistance - distance) / maxDistance;
-          this.x -= dx * force * 0.05;
-          this.y -= dy * force * 0.05;
+          this.x -= dx * force * 0.03;
+          this.y -= dy * force * 0.03;
         }
       }
 
       draw() {
         if (!ctx) return;
-        ctx.fillStyle = `rgba(165, 180, 252, ${this.opacity})`;
+        ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
@@ -73,7 +74,7 @@ const StarBackground: React.FC = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       particles = [];
-      const count = Math.floor((canvas.width * canvas.height) / 8000);
+      const count = Math.floor((canvas.width * canvas.height) / 10000);
       for (let i = 0; i < count; i++) {
         particles.push(new Particle());
       }
@@ -114,7 +115,7 @@ const StarBackground: React.FC = () => {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.6 }}
+      style={{ opacity: 0.8 }}
     />
   );
 };
