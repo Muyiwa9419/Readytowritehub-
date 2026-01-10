@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { BlogPost } from '../types';
+import { BlogPost } from '../types.ts';
 
 interface PostCardProps {
   post: BlogPost;
