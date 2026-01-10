@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { BlogPost, Comment, SiteSettings, AuthorProfile, ManifestoItem } from '../types.ts';
 
@@ -121,21 +120,21 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   if (isEditing) {
     return (
       <div className="animate-in fade-in zoom-in-95 duration-500 max-w-4xl mx-auto px-4 pb-20">
-        <div className="flex justify-between items-center mb-10 text-center sm:text-left">
+        <div className="flex justify-between items-center mb-8 md:mb-10 text-center sm:text-left">
           <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Refine thought</h2>
           <button onClick={onCancel} className="text-slate-400 font-bold uppercase text-[10px] hover:text-indigo-600 transition-colors">Cancel</button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6 glass-card p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-slate-100 bg-white shadow-xl">
           <div className="space-y-2">
             <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Title</label>
-            <input type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-indigo-600/10 outline-none" placeholder="The Quiet Scribe..." />
+            <input type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-indigo-600/10 outline-none border border-slate-100" placeholder="The Quiet Scribe..." />
           </div>
           
           <div className="space-y-2">
             <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Post Banner</label>
             <div className="flex flex-col gap-4">
               {formData.imageUrl && (
-                <div className="w-full h-32 md:h-40 rounded-xl md:rounded-2xl overflow-hidden border border-slate-100 shadow-inner">
+                <div className="w-full h-32 md:h-48 rounded-xl md:rounded-2xl overflow-hidden border border-slate-100 shadow-inner">
                   <img src={formData.imageUrl} alt="Banner Preview" className="w-full h-full object-cover" />
                 </div>
               )}
@@ -154,7 +153,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 value={formData.imageUrl} 
                 onChange={e => setFormData({...formData, imageUrl: e.target.value})} 
                 placeholder="Or paste image URL here..." 
-                className="w-full p-3 rounded-xl bg-slate-50 text-[10px] outline-none"
+                className="w-full p-3 rounded-xl bg-slate-50 text-[10px] outline-none border border-slate-100"
               />
             </div>
           </div>
@@ -162,7 +161,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Category</label>
-              <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl outline-none">
+              <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl outline-none border border-slate-100">
                 <option>Reflections</option>
                 <option>Lifestyle</option>
                 <option>Faith</option>
@@ -172,7 +171,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
             <div className="space-y-2">
               <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Status</label>
-              <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value as any})} className="w-full p-4 rounded-xl md:rounded-2xl outline-none">
+              <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value as any})} className="w-full p-4 rounded-xl md:rounded-2xl outline-none border border-slate-100">
                 <option value="published">Published</option>
                 <option value="draft">Draft</option>
                 <option value="scheduled">Scheduled</option>
@@ -194,11 +193,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <div className="space-y-2">
             <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Excerpt</label>
-            <textarea value={formData.excerpt} onChange={e => setFormData({...formData, excerpt: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl h-24 outline-none" placeholder="A brief whisper..." />
+            <textarea value={formData.excerpt} onChange={e => setFormData({...formData, excerpt: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl h-24 outline-none border border-slate-100" placeholder="A brief whisper..." />
           </div>
           <div className="space-y-2">
             <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Content</label>
-            <textarea value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl h-64 serif italic outline-none" placeholder="Spill your soul..." />
+            <textarea value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl h-64 serif italic outline-none border border-slate-100" placeholder="Spill your soul..." />
           </div>
           <button type="submit" className="w-full bg-indigo-600 text-white p-5 rounded-full font-bold shadow-xl hover:bg-indigo-700 transition-all uppercase tracking-widest text-xs">
             Save Insight
@@ -209,7 +208,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   }
 
   return (
-    <div className="space-y-8 md:space-y-10 animate-in fade-in slide-in-from-right-4 duration-700 px-4 pb-20 max-w-5xl mx-auto">
+    <div className="space-y-8 md:space-y-10 animate-in fade-in slide-in-from-right-4 duration-700 px-4 pb-20 max-w-5xl mx-auto w-full">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-6 text-center sm:text-left">
         <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Portal</h2>
         <button onClick={onCreate} className="w-full sm:w-auto bg-indigo-600 text-white px-8 py-4 rounded-full font-bold shadow-xl text-sm uppercase tracking-widest hover:scale-105 transition-transform active:scale-95">
@@ -217,7 +216,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </button>
       </div>
 
-      <div className="flex gap-4 md:gap-8 border-b border-slate-100 overflow-x-auto no-scrollbar justify-start">
+      <div className="flex gap-4 md:gap-8 border-b border-slate-100 overflow-x-auto no-scrollbar justify-start px-2">
         {[
           { id: 'posts', label: 'Whispers' },
           { id: 'reflections', label: 'Reflections' },
@@ -237,177 +236,171 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
         ))}
       </div>
 
-      {activeTab === 'posts' && (
-        <div className="glass-card rounded-2xl md:rounded-[2rem] overflow-hidden border border-slate-100 bg-white shadow-xl">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left min-w-[600px]">
-              <thead className="bg-slate-50 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                <tr>
-                  <th className="px-6 py-4">Thought</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {posts.map(post => (
-                  <tr key={post.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4">
-                      <p className="font-bold text-slate-900 text-sm">{post.title}</p>
-                      <p className="text-[10px] text-slate-400 uppercase tracking-tighter">{post.category} • {post.date}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`text-[9px] font-bold uppercase px-3 py-1 rounded-full ${
-                        post.status === 'published' ? 'bg-green-50 text-green-600' : 
-                        post.status === 'scheduled' ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-100 text-slate-500'
-                      }`}>
-                        {post.status}
-                      </span>
-                      {post.status === 'scheduled' && post.scheduledDate && (
-                        <p className="text-[8px] text-indigo-400 mt-1">{new Date(post.scheduledDate).toLocaleString()}</p>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <button onClick={() => onEdit?.(post)} className="text-indigo-600 font-bold mr-4 text-[10px] uppercase hover:underline">Edit</button>
-                      <button onClick={() => onDelete(post.id)} className="text-red-400 font-bold text-[10px] uppercase hover:underline">Trash</button>
-                    </td>
+      <div className="w-full">
+        {activeTab === 'posts' && (
+          <div className="glass-card rounded-2xl md:rounded-[2rem] overflow-hidden border border-slate-100 bg-white shadow-xl">
+            <div className="overflow-x-auto no-scrollbar">
+              <table className="w-full text-left min-w-[600px]">
+                <thead className="bg-slate-50 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  <tr>
+                    <th className="px-6 py-4">Thought</th>
+                    <th className="px-6 py-4">Status</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'reflections' && (
-        <div className="space-y-4">
-          {allComments.length === 0 ? (
-            <div className="text-center py-20 bg-white rounded-2xl md:rounded-[2rem] border border-slate-100">
-               <p className="text-slate-400 serif italic">No reflections have been shared yet.</p>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {posts.map(post => (
+                    <tr key={post.id} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="px-6 py-4">
+                        <p className="font-bold text-slate-900 text-sm">{post.title}</p>
+                        <p className="text-[10px] text-slate-400 uppercase tracking-tighter">{post.category} • {post.date}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`text-[9px] font-bold uppercase px-3 py-1 rounded-full ${
+                          post.status === 'published' ? 'bg-green-50 text-green-600' : 
+                          post.status === 'scheduled' ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-100 text-slate-500'
+                        }`}>
+                          {post.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button onClick={() => onEdit?.(post)} className="text-indigo-600 font-bold mr-4 text-[10px] uppercase hover:underline">Edit</button>
+                        <button onClick={() => onDelete(post.id)} className="text-red-400 font-bold text-[10px] uppercase hover:underline">Trash</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ) : (
-            allComments.map(comment => (
-              <div key={comment.id} className="glass-card p-6 rounded-2xl md:rounded-[2rem] bg-white border border-slate-100 flex flex-col sm:flex-row justify-between gap-4 items-center">
-                <div className="flex-1 text-center sm:text-left">
-                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2">
-                    <span className="text-[10px] font-bold uppercase text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">Re: {comment.postTitle}</span>
-                    <span className="hidden sm:inline text-slate-300 text-[10px]">•</span>
-                    <span className="text-slate-400 text-[10px] uppercase font-bold">{comment.date}</span>
-                  </div>
-                  <p className="text-slate-900 font-bold text-sm mb-1">{comment.author}</p>
-                  <p className="text-slate-600 serif italic text-sm md:text-base leading-relaxed">"{comment.text}"</p>
-                </div>
-                <button 
-                  onClick={() => deleteComment(comment.postId, comment.id)}
-                  className="text-red-400 text-[10px] font-bold uppercase hover:bg-red-50 px-4 py-2 rounded-full transition-colors whitespace-nowrap"
-                >
-                  Set Free
-                </button>
+          </div>
+        )}
+
+        {activeTab === 'reflections' && (
+          <div className="space-y-4">
+            {allComments.length === 0 ? (
+              <div className="text-center py-20 bg-white rounded-2xl md:rounded-[2rem] border border-slate-100">
+                 <p className="text-slate-400 serif italic">No reflections shared yet.</p>
               </div>
-            ))
-          )}
-        </div>
-      )}
-
-      {activeTab === 'branding' && siteSettings && onUpdateSettings && (
-        <div className="max-w-xl mx-auto space-y-6 w-full">
-          <div className="glass-card p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-100 bg-white shadow-xl space-y-6">
-            <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Hub Name</label>
-              <input type="text" value={siteSettings.siteName} onChange={e => onUpdateSettings({...siteSettings, siteName: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none" />
-            </div>
-            <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Tagline</label>
-              <input type="text" value={siteSettings.tagline} onChange={e => onUpdateSettings({...siteSettings, tagline: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none" />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'manifesto' && manifesto && onUpdateManifesto && (
-        <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in w-full">
-          <div className="space-y-6">
-            {manifesto.map((item, index) => (
-              <div key={item.id} className="glass-card p-6 rounded-2xl md:rounded-[2rem] bg-white border border-slate-100 shadow-lg space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Icon</label>
-                    <input type="text" value={item.icon} onChange={e => {
-                      const next = [...manifesto];
-                      next[index] = { ...item, icon: e.target.value };
-                      onUpdateManifesto(next);
-                    }} className="w-full p-3 rounded-xl bg-slate-50 outline-none" />
+            ) : (
+              allComments.map(comment => (
+                <div key={comment.id} className="glass-card p-6 rounded-2xl md:rounded-[2rem] bg-white border border-slate-100 flex flex-col md:flex-row justify-between gap-4 items-center">
+                  <div className="flex-1 text-center md:text-left">
+                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-2">
+                      <span className="text-[10px] font-bold uppercase text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">Re: {comment.postTitle}</span>
+                      <span className="hidden sm:inline text-slate-300 text-[10px]">•</span>
+                      <span className="text-slate-400 text-[10px] uppercase font-bold">{comment.date}</span>
+                    </div>
+                    <p className="text-slate-900 font-bold text-sm mb-1">{comment.author}</p>
+                    <p className="text-slate-600 serif italic text-sm md:text-base leading-relaxed">"{comment.text}"</p>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Title</label>
-                    <input type="text" value={item.title} onChange={e => {
-                      const next = [...manifesto];
-                      next[index] = { ...item, title: e.target.value };
-                      onUpdateManifesto(next);
-                    }} className="w-full p-3 rounded-xl bg-slate-50 outline-none" />
-                  </div>
+                  <button onClick={() => deleteComment(comment.postId, comment.id)} className="text-red-400 text-[10px] font-bold uppercase hover:bg-red-50 px-4 py-2 rounded-full transition-colors">Set Free</button>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Description</label>
-                  <textarea value={item.description} onChange={e => {
-                    const next = [...manifesto];
-                    next[index] = { ...item, description: e.target.value };
-                    onUpdateManifesto(next);
-                  }} className="w-full p-3 rounded-xl bg-slate-50 h-24 outline-none text-sm" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'profile' && authorProfile && onUpdateAuthor && (
-        <div className="max-w-xl mx-auto space-y-6 w-full">
-           <div className="glass-card p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-100 bg-white shadow-xl space-y-6">
-            <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Scribe Name</label>
-              <input type="text" value={authorProfile.name} onChange={e => onUpdateAuthor({...authorProfile, name: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none" />
-            </div>
-            <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Professional Title</label>
-              <input type="text" value={authorProfile.title} onChange={e => onUpdateAuthor({...authorProfile, title: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none" />
-            </div>
-            <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Soul Bio</label>
-              <textarea value={authorProfile.bio} onChange={e => onUpdateAuthor({...authorProfile, bio: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 h-32 outline-none" />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'security' && (
-        <div className="max-w-xl mx-auto space-y-6 w-full">
-           <form onSubmit={handlePasswordChange} className="glass-card p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-100 bg-white shadow-xl space-y-6">
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Change Access Key</h3>
-            
-            {securityMessage && (
-              <div className={`p-4 rounded-xl text-[10px] font-bold uppercase tracking-widest ${securityMessage.type === 'success' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
-                {securityMessage.text}
-              </div>
+              ))
             )}
+          </div>
+        )}
 
-            <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Current Key</label>
-              <input required type="password" value={passwords.current} onChange={e => setPasswords({...passwords, current: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none" />
+        {activeTab === 'branding' && siteSettings && onUpdateSettings && (
+          <div className="max-w-xl mx-auto space-y-6 w-full">
+            <div className="glass-card p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-100 bg-white shadow-xl space-y-6">
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Hub Name</label>
+                <input type="text" value={siteSettings.siteName} onChange={e => onUpdateSettings({...siteSettings, siteName: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none border border-slate-100" />
+              </div>
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Tagline</label>
+                <input type="text" value={siteSettings.tagline} onChange={e => onUpdateSettings({...siteSettings, tagline: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none border border-slate-100" />
+              </div>
             </div>
-            <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">New Key</label>
-              <input required type="password" value={passwords.next} onChange={e => setPasswords({...passwords, next: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none" />
+          </div>
+        )}
+
+        {activeTab === 'manifesto' && manifesto && onUpdateManifesto && (
+          <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in w-full">
+            <div className="space-y-6">
+              {manifesto.map((item, index) => (
+                <div key={item.id} className="glass-card p-6 rounded-2xl md:rounded-[2rem] bg-white border border-slate-100 shadow-lg space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Icon</label>
+                      <input type="text" value={item.icon} onChange={e => {
+                        const next = [...manifesto];
+                        next[index] = { ...item, icon: e.target.value };
+                        onUpdateManifesto(next);
+                      }} className="w-full p-3 rounded-xl bg-slate-50 outline-none border border-slate-100" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Title</label>
+                      <input type="text" value={item.title} onChange={e => {
+                        const next = [...manifesto];
+                        next[index] = { ...item, title: e.target.value };
+                        onUpdateManifesto(next);
+                      }} className="w-full p-3 rounded-xl bg-slate-50 outline-none border border-slate-100" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Description</label>
+                    <textarea value={item.description} onChange={e => {
+                      const next = [...manifesto];
+                      next[index] = { ...item, description: e.target.value };
+                      onUpdateManifesto(next);
+                    }} className="w-full p-3 rounded-xl bg-slate-50 h-24 outline-none text-sm border border-slate-100" />
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Confirm New Key</label>
-              <input required type="password" value={passwords.confirm} onChange={e => setPasswords({...passwords, confirm: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none" />
+          </div>
+        )}
+
+        {activeTab === 'profile' && authorProfile && onUpdateAuthor && (
+          <div className="max-w-xl mx-auto space-y-6 w-full">
+             <div className="glass-card p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-100 bg-white shadow-xl space-y-6">
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Scribe Name</label>
+                <input type="text" value={authorProfile.name} onChange={e => onUpdateAuthor({...authorProfile, name: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none border border-slate-100" />
+              </div>
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Professional Title</label>
+                <input type="text" value={authorProfile.title} onChange={e => onUpdateAuthor({...authorProfile, title: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none border border-slate-100" />
+              </div>
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Soul Bio</label>
+                <textarea value={authorProfile.bio} onChange={e => onUpdateAuthor({...authorProfile, bio: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 h-32 outline-none border border-slate-100" />
+              </div>
             </div>
-            <button type="submit" className="w-full bg-slate-900 text-white p-5 rounded-full font-bold shadow-xl hover:bg-indigo-600 transition-all uppercase tracking-widest text-xs">
-              Update Security Key
-            </button>
-          </form>
-        </div>
-      )}
+          </div>
+        )}
+
+        {activeTab === 'security' && (
+          <div className="max-w-xl mx-auto space-y-6 w-full">
+             <form onSubmit={handlePasswordChange} className="glass-card p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-100 bg-white shadow-xl space-y-6">
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Change Access Key</h3>
+              
+              {securityMessage && (
+                <div className={`p-4 rounded-xl text-[10px] font-bold uppercase tracking-widest ${securityMessage.type === 'success' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                  {securityMessage.text}
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Current Key</label>
+                <input required type="password" value={passwords.current} onChange={e => setPasswords({...passwords, current: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none border border-slate-100" />
+              </div>
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">New Key</label>
+                <input required type="password" value={passwords.next} onChange={e => setPasswords({...passwords, next: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none border border-slate-100" />
+              </div>
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Confirm New Key</label>
+                <input required type="password" value={passwords.confirm} onChange={e => setPasswords({...passwords, confirm: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl bg-slate-50 outline-none border border-slate-100" />
+              </div>
+              <button type="submit" className="w-full bg-slate-900 text-white p-5 rounded-full font-bold shadow-xl hover:bg-indigo-600 transition-all uppercase tracking-widest text-xs">
+                Update Security Key
+              </button>
+            </form>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
