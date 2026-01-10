@@ -44,8 +44,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     posts.forEach(post => {
       const saved = localStorage.getItem(`rtwh_comments_${post.id}`);
       if (saved) {
-        const comments: Comment[] = JSON.parse(saved);
-        comments.forEach(c => collected.push({ ...c, postTitle: post.title }));
+        try {
+          const comments: Comment[] = JSON.parse(saved);
+          comments.forEach(c => collected.push({ ...c, postTitle: post.title }));
+        } catch (e) {
+          console.error("Corrupted comments", e);
+        }
       }
     });
     setAllComments(collected.sort((a, b) => b.id.localeCompare(a.id)));
@@ -120,14 +124,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   if (isEditing) {
     return (
       <div className="animate-in fade-in zoom-in-95 duration-500 max-w-4xl mx-auto px-4 pb-20">
-        <div className="flex justify-between items-center mb-8 md:mb-10 text-center sm:text-left">
+        <div className="flex justify-between items-center mb-8 text-center sm:text-left">
           <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Refine thought</h2>
           <button onClick={onCancel} className="text-slate-400 font-bold uppercase text-[10px] hover:text-indigo-600 transition-colors">Cancel</button>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-6 glass-card p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-slate-100 bg-white shadow-xl">
+        <form onSubmit={handleSubmit} className="space-y-6 glass-card p-6 md:p-10 rounded-[2rem] border border-slate-100 bg-white shadow-xl">
           <div className="space-y-2">
             <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Title</label>
-            <input type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-indigo-600/10 outline-none border border-slate-100" placeholder="The Quiet Scribe..." />
+            <input type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full p-4 rounded-xl md:rounded-2xl outline-none border border-slate-100" placeholder="The Quiet Scribe..." />
           </div>
           
           <div className="space-y-2">
@@ -143,7 +147,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <svg className="w-8 h-8 mb-2 text-slate-400 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
                     <p className="mb-1 text-[10px] text-slate-500 font-bold uppercase tracking-widest">Click to upload banner</p>
-                    <p className="text-[8px] text-slate-400 uppercase">SVG, PNG, JPG or GIF</p>
+                    <p className="text-[8px] text-slate-400 uppercase text-center px-4">Tap to choose a local file or paste a link below</p>
                   </div>
                   <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
                 </label>
@@ -178,18 +182,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </select>
             </div>
           </div>
-
-          {formData.status === 'scheduled' && (
-            <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-              <label className="text-[10px] font-bold uppercase text-indigo-600 ml-2">Schedule Time</label>
-              <input 
-                type="datetime-local" 
-                value={formData.scheduledDate || ''} 
-                onChange={e => setFormData({...formData, scheduledDate: e.target.value})} 
-                className="w-full p-4 rounded-xl md:rounded-2xl border-indigo-100 border outline-none" 
-              />
-            </div>
-          )}
 
           <div className="space-y-2">
             <label className="text-[10px] font-bold uppercase text-slate-400 ml-2">Excerpt</label>
