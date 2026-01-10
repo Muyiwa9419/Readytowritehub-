@@ -1,18 +1,18 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { BlogPost, View, ManifestoItem, SiteSettings, AuthorProfile } from './types.ts';
-import { INITIAL_POSTS } from './constants.ts';
-import Navbar from './components/Navbar.tsx';
-import PostCard from './utils/PostCard.tsx';
-import AdminDashboard from './views/AdminDashboard.tsx';
+import { INITIAL_POSTS } from './constants';
+import Navbar from './components/Navbar';
+import PostCard from './utils/PostCard';
+import AdminDashboard from './views/AdminDashboard';
 import PostView from './views/PostView.tsx';
-import LandingView from './views/LandingView.tsx';
-import AuthorView from './components/AuthorView.tsx';
+import LandingView from './views/LandingView';
+import AuthorView from './components/AuthorView';
 import LoginView from './views/LoginView.tsx';
-import AmbientSoundscape from './components/AmbientSoundscape.tsx';
-import DreamJournal from './components/DreamJournal.tsx';
+import AmbientSoundscape from './components/AmbientSoundscape';
+import DreamJournal from './components/DreamJournal';
 import StarBackground from './StarBackground.tsx';
-import MidnightLibrary from './services/MidnightLibrary.tsx';
+import MidnightLibrary from './services/MidnightLibrary';
 import Logo from './components/Logo.tsx';
 
 const CATEGORIES = ['All', 'Reflections', 'Lifestyle', 'Legal', 'Faith', 'Dreams'];
