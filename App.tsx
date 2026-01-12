@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { BlogPost, View, ManifestoItem, SiteSettings, AuthorProfile } from './types.ts';
 import { INITIAL_POSTS } from './constants.ts';
@@ -12,7 +11,6 @@ import LoginView from './views/LoginView.tsx';
 import AmbientSoundscape from './components/AmbientSoundscape.tsx';
 import DreamJournal from './components/DreamJournal.tsx';
 import StarBackground from './StarBackground.tsx';
-import MidnightLibrary from './services/MidnightLibrary.tsx';
 import Logo from './components/Logo.tsx';
 
 const CATEGORIES = ['All', 'Reflections', 'Lifestyle', 'Legal', 'Faith', 'Dreams'];
@@ -316,10 +314,6 @@ const App: React.FC = () => {
                   <p className="text-slate-400 serif italic">The feed is still. No whispers found.</p>
                 </div>
               )}
-
-              <div className="py-6 px-4">
-                <MidnightLibrary />
-              </div>
             </div>
           )}
 
