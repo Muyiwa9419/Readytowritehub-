@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 import { BlogPost, View, ManifestoItem, SiteSettings, AuthorProfile } from './types';
 import { INITIAL_POSTS } from './constants';
@@ -21,6 +22,22 @@ import React, {
   useCallback,
 } from 'react';
 
+=======
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { BlogPost, View, ManifestoItem, SiteSettings, AuthorProfile } from './types.ts';
+import { INITIAL_POSTS } from './constants.ts';
+import Navbar from './components/Navbar.tsx';
+import PostCard from './utils/PostCard.tsx';
+import AdminDashboard from './views/AdminDashboard.tsx';
+import PostView from './views/PostView.tsx';
+import LandingView from './views/LandingView.tsx';
+import AuthorView from './components/AuthorView.tsx';
+import LoginView from './views/LoginView.tsx';
+import AmbientSoundscape from './components/AmbientSoundscape.tsx';
+import DreamJournal from './components/DreamJournal.tsx';
+import StarBackground from './StarBackground.tsx';
+import Logo from './components/Logo.tsx';
+>>>>>>> 888cf605e9b4c7e179e67b7767a815395efd470b
 
 const CATEGORIES = ['All', 'Reflections', 'Lifestyle', 'Legal', 'Faith', 'Dreams'];
 const MOODS = ['All Spirits', 'Quiet', 'Restless', 'Inspired', 'Melancholy'];
@@ -323,10 +340,13 @@ const App = () => {
                   <p className="text-slate-400 serif italic">The feed is still. No whispers found.</p>
                 </div>
               )}
+<<<<<<< HEAD
 
               <div className="py-6 px-4">
                 {/* <MidnightLibrary /> */}
               </div>
+=======
+>>>>>>> 888cf605e9b4c7e179e67b7767a815395efd470b
             </div>
           )}
 

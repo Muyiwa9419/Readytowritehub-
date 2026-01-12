@@ -1,8 +1,6 @@
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BlogPost, ManifestoItem, AuthorProfile } from '../types.ts';
 import PostCard from '../utils/PostCard.tsx';
-import { generateWritingPrompt } from './services/geminiService.ts';
 
 interface LandingViewProps {
   onEnter: () => void;
@@ -14,25 +12,6 @@ interface LandingViewProps {
 }
 
 const LandingView: React.FC<LandingViewProps> = ({ onEnter, recentPosts, onPostClick, manifesto, siteName, author }) => {
-  const [musePrompt, setMusePrompt] = useState<string>('');
-  const [loadingMuse, setLoadingMuse] = useState(false);
-
-  const fetchPrompt = async () => {
-    setLoadingMuse(true);
-    try {
-      const prompt = await generateWritingPrompt();
-      setMusePrompt(prompt);
-    } catch (e) {
-      setMusePrompt("The sky is clear and silent today.");
-    } finally {
-      setLoadingMuse(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPrompt();
-  }, []);
-
   return (
     <div className="space-y-24 md:space-y-48 pb-20">
       {/* Hero Section */}
@@ -64,18 +43,6 @@ const LandingView: React.FC<LandingViewProps> = ({ onEnter, recentPosts, onPostC
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
           </button>
-        </div>
-
-        {/* Morning Muse Widget */}
-        <div className="pt-10 animate-in fade-in duration-1000 delay-500 w-full max-w-sm">
-           <div className="glass-card px-6 py-5 rounded-[2rem] border border-slate-100 relative group bg-white/60 shadow-lg">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-indigo-600 text-white text-[9px] font-bold uppercase tracking-widest rounded-full shadow-lg">
-                Morning Muse
-              </div>
-              <p className="text-slate-700 text-sm italic serif leading-relaxed text-center">
-                {loadingMuse ? "Summoning inspiration..." : `"${musePrompt}"`}
-              </p>
-           </div>
         </div>
       </section>
 
